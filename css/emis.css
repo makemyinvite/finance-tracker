@@ -1,0 +1,634 @@
+/**
+ * FinanceFlow - EMI & Loans Page Styles
+ */
+
+/* EMI Stats Grid */
+.emi-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.emi-stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.emi-stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 0.75rem;
+}
+
+.emi-stat-card .stat-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.emi-stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Upcoming Payments */
+.upcoming-payments {
+    margin-bottom: 1.5rem;
+}
+
+.payment-alert {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: var(--radius);
+    margin-bottom: 0.75rem;
+}
+
+.payment-alert.overdue {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+}
+
+.payment-alert i {
+    font-size: 1.5rem;
+    color: #d97706;
+}
+
+.payment-alert.overdue i {
+    color: #dc2626;
+}
+
+.payment-info {
+    flex: 1;
+}
+
+.payment-info h4 {
+    font-size: 0.9375rem;
+    margin-bottom: 0.125rem;
+    color: #92400e;
+}
+
+.payment-alert.overdue .payment-info h4 {
+    color: #991b1b;
+}
+
+.payment-info p {
+    font-size: 0.8125rem;
+    color: #a16207;
+}
+
+.payment-alert.overdue .payment-info p {
+    color: #b91c1c;
+}
+
+.payment-amount {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #92400e;
+}
+
+.payment-alert.overdue .payment-amount {
+    color: #991b1b;
+}
+
+/* EMI List Grid */
+#emiList {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+#emiList h4 {
+    grid-column: 1 / -1;
+}
+
+/* EMI Card Compact */
+.emi-card-compact {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1rem;
+    border-left: 4px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.emi-card-compact.completed {
+    border-left-color: var(--success);
+    opacity: 0.8;
+}
+
+/* Card Header Row */
+.emi-card-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.emi-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: var(--primary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.emi-card-icon i {
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+.emi-card-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.emi-card-title h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.emi-card-title p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.emi-card-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.emi-action-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: var(--light-100);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.emi-action-btn:hover {
+    background: var(--light-200);
+    color: var(--text-primary);
+}
+
+.emi-action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+.emi-action-btn i {
+    font-size: 0.75rem;
+}
+
+/* Card Stats */
+.emi-card-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--light-200);
+    border-bottom: 1px solid var(--light-200);
+}
+
+.emi-stat {
+    text-align: center;
+    flex: 1;
+}
+
+.emi-stat-value {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.emi-stat-label {
+    display: block;
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 0.125rem;
+}
+
+/* Card Progress */
+.emi-card-progress {
+    margin-top: auto;
+}
+
+.emi-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.emi-progress-bar {
+    height: 4px;
+    background: var(--light-200);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.emi-progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+/* Mark Paid Button */
+.emi-mark-paid-btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+}
+
+/* EMI Card */
+.emi-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary);
+}
+
+.emi-card.paid {
+    border-left-color: var(--success);
+    opacity: 0.7;
+}
+
+.emi-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.emi-card-title h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emi-card-title h4 i {
+    color: var(--primary);
+}
+
+.emi-card-title p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.emi-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.emi-card-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.emi-detail {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--light-50);
+    border-radius: var(--radius-sm);
+}
+
+.emi-detail-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.emi-detail-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* EMI Progress */
+.emi-progress {
+    margin-top: 1rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.375rem;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: var(--light-200);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+/* Mark Paid Button */
+.mark-paid-btn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+/* EMI Automation Section */
+.emi-automation {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.emi-automation h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.emi-automation h3 i {
+    color: var(--primary);
+}
+
+.automation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Toggle Switch Styles */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-label input {
+    display: none;
+}
+
+.toggle-switch {
+    width: 44px;
+    height: 24px;
+    background: var(--light-300);
+    border-radius: var(--radius-full);
+    position: relative;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-label input:checked + .toggle-switch {
+    background: var(--primary);
+}
+
+.toggle-label input:checked + .toggle-switch::after {
+    left: 23px;
+}
+
+.toggle-text {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+/* Form Row for EMI Modal */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 576px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Button Icon Variations */
+.btn-icon.btn-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+
+.btn-icon.btn-danger,
+.btn.btn-danger {
+    color: var(--danger);
+}
+
+.btn-icon.btn-danger:hover,
+.btn.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Empty State */
+#emiEmptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+#emiEmptyState i {
+    font-size: 3rem;
+    color: var(--light-400);
+    margin-bottom: 1rem;
+}
+
+#emiEmptyState h4 {
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+#emiEmptyState p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    #emiList {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    #emiList {
+        grid-template-columns: 1fr;
+    }
+
+    .emi-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .emi-card-body {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .emi-card-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .emi-card-actions {
+        align-self: flex-end;
+    }
+
+    /* Compact card mobile layout */
+    .emi-card-compact {
+        padding: 0.875rem;
+    }
+
+    .emi-card-title h4 {
+        font-size: 0.875rem;
+        white-space: normal;
+        overflow: visible;
+    }
+
+    .emi-card-title p {
+        font-size: 0.6875rem;
+    }
+
+    .emi-stat-value {
+        font-size: 0.8125rem;
+    }
+
+    .emi-stat-label {
+        font-size: 0.5625rem;
+    }
+
+    .emi-action-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .emi-action-btn i {
+        font-size: 0.6875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .emi-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .emi-card-body {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-alert {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .payment-info {
+        order: 2;
+    }
+
+    .payment-amount {
+        order: 3;
+    }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .emi-card-compact {
+    background: var(--bg-card);
+}
+
+[data-theme="dark"] .emi-card-icon {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .emi-action-btn {
+    background: var(--light-100);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .emi-action-btn:hover {
+    background: var(--light-200);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .emi-card-stats {
+    border-top-color: var(--light-200);
+    border-bottom-color: var(--light-200);
+}
+
+[data-theme="dark"] .emi-progress-bar {
+    background: var(--light-200);
+}

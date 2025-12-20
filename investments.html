@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investments - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/investments.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Investments & Savings</h1>
+                <p class="page-subtitle">Track your investments and savings</p>
+            </div>
+            <div class="header-right">
+                <a href="calculators.html" class="btn btn-secondary">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Investments Content -->
+        <div class="investments-content">
+            <!-- Overview Stats -->
+            <section class="investment-stats">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-1);">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Investments</span>
+                        <span class="stat-value" id="totalInvestments">₹0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-2);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Expected Returns</span>
+                        <span class="stat-value" id="expectedReturns">₹0</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-3);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Avg Return Rate</span>
+                        <span class="stat-value" id="avgReturnRate">0%</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-4);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Active Plans</span>
+                        <span class="stat-value" id="activePlans">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EMI Link Banner -->
+            <section class="emi-link-banner" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: var(--radius); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-info-circle" style="color: #2563eb; font-size: 1.25rem;"></i>
+                    <span style="color: #1e40af;">Looking for EMI & Loan management? It has moved to its own section.</span>
+                </div>
+                <a href="emis.html" class="btn btn-primary btn-sm">
+                    <i class="fas fa-arrow-right"></i> Go to EMI & Loans
+                </a>
+            </section>
+
+            <!-- Investments Grid -->
+            <div class="investments-grid">
+                <!-- Fixed Deposits -->
+                <section class="card investment-section">
+                    <div class="card-header">
+                        <h3><i class="fas fa-landmark"></i> Fixed Deposits</h3>
+                        <button class="btn btn-secondary btn-sm" id="addFdBtn">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="investment-list" id="fdList">
+                        <div class="empty-state-small">
+                            <p>No FDs added yet</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recurring Deposits -->
+                <section class="card investment-section">
+                    <div class="card-header">
+                        <h3><i class="fas fa-coins"></i> Recurring Deposits</h3>
+                        <button class="btn btn-secondary btn-sm" id="addRdBtn">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="investment-list" id="rdList">
+                        <div class="empty-state-small">
+                            <p>No RDs added yet</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SIP / Mutual Funds -->
+                <section class="card investment-section">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> SIP / Mutual Funds</h3>
+                        <button class="btn btn-secondary btn-sm" id="addSipBtn">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="investment-list" id="sipList">
+                        <div class="empty-state-small">
+                            <p>No SIPs added yet</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PPF -->
+                <section class="card investment-section">
+                    <div class="card-header">
+                        <h3><i class="fas fa-shield-alt"></i> PPF Account</h3>
+                        <button class="btn btn-secondary btn-sm" id="addPpfBtn">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div class="investment-list" id="ppfList">
+                        <div class="empty-state-small">
+                            <p>No PPF added yet</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Email Settings Card -->
+            <section class="card email-settings-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-envelope"></i> Investment Notifications</h3>
+                </div>
+                <div class="email-settings-content">
+                    <div class="form-group">
+                        <label>Your Email Address</label>
+                        <input type="email" id="notificationEmail" placeholder="your.email@gmail.com">
+                        <small>Investment reminders will be sent to this email</small>
+                    </div>
+                    <div class="notification-options">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableMaturityReminders" checked>
+                            <span class="toggle-switch"></span>
+                            <span class="toggle-text">FD/RD maturity reminders (7 days before)</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableSipReminders" checked>
+                            <span class="toggle-switch"></span>
+                            <span class="toggle-text">SIP payment date reminders</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableInvestmentSummary">
+                            <span class="toggle-switch"></span>
+                            <span class="toggle-text">Monthly investment performance summary</span>
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" id="saveEmailSettings">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add FD Modal -->
+    <div class="modal" id="addFdModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-landmark"></i> Add Fixed Deposit</h2>
+                <button class="modal-close" data-close-modal="addFdModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addFdForm" class="modal-body">
+                <div class="form-group">
+                    <label>FD Name *</label>
+                    <input type="text" name="name" placeholder="e.g., HDFC FD - 1 Year" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Principal Amount (₹) *</label>
+                        <input type="number" name="principal" placeholder="100000" min="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (% p.a.) *</label>
+                        <input type="number" name="interestRate" placeholder="7.5" step="0.01" min="0.1" max="20" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tenure *</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="number" name="tenureValue" placeholder="12" min="1" max="3650" required style="flex: 1;">
+                            <select name="tenureUnit" style="width: 100px;">
+                                <option value="days">Days</option>
+                                <option value="months" selected>Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bank/Institution</label>
+                    <input type="text" name="bank" placeholder="e.g., HDFC Bank">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close-modal="addFdModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add FD
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add RD Modal -->
+    <div class="modal" id="addRdModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-coins"></i> Add Recurring Deposit</h2>
+                <button class="modal-close" data-close-modal="addRdModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addRdForm" class="modal-body">
+                <div class="form-group">
+                    <label>RD Name *</label>
+                    <input type="text" name="name" placeholder="e.g., Post Office RD" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Monthly Deposit (₹) *</label>
+                        <input type="number" name="monthlyDeposit" placeholder="5000" min="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (% p.a.) *</label>
+                        <input type="number" name="interestRate" placeholder="6.5" step="0.01" min="0.1" max="20" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tenure (Months) *</label>
+                        <input type="number" name="tenureMonths" placeholder="60" min="6" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bank/Institution</label>
+                    <input type="text" name="bank" placeholder="e.g., SBI">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close-modal="addRdModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add RD
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add SIP Modal -->
+    <div class="modal" id="addSipModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Add SIP / Mutual Fund</h2>
+                <button class="modal-close" data-close-modal="addSipModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addSipForm" class="modal-body">
+                <div class="form-group">
+                    <label>Fund Name *</label>
+                    <input type="text" name="name" placeholder="e.g., Axis Bluechip Fund" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Monthly SIP Amount (₹) *</label>
+                        <input type="number" name="monthlyAmount" placeholder="5000" min="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Returns (% p.a.) *</label>
+                        <input type="number" name="expectedReturns" placeholder="12" step="0.1" min="1" max="50" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Investment Period (Years) *</label>
+                        <input type="number" name="tenureYears" placeholder="10" min="1" max="40" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fund House</label>
+                    <input type="text" name="fundHouse" placeholder="e.g., Axis Mutual Fund">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close-modal="addSipModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add SIP
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add PPF Modal -->
+    <div class="modal" id="addPpfModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Add PPF Account</h2>
+                <button class="modal-close" data-close-modal="addPpfModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="addPpfForm" class="modal-body">
+                <div class="form-group">
+                    <label>Account Name *</label>
+                    <input type="text" name="name" placeholder="e.g., Post Office PPF" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Yearly Contribution (₹) *</label>
+                        <input type="number" name="yearlyAmount" placeholder="150000" min="500" max="150000" required>
+                        <small style="color: var(--text-muted);">Max: ₹1,50,000/year</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Tenure (Years) *</label>
+                        <input type="number" name="tenureYears" placeholder="15" min="15" max="50" value="15" required>
+                        <small style="color: var(--text-muted);">Min: 15 years</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (% p.a.)</label>
+                        <input type="number" name="interestRate" value="7.1" step="0.1" readonly>
+                        <small style="color: var(--text-muted);">Current PPF rate</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bank/Post Office</label>
+                    <input type="text" name="bank" placeholder="e.g., India Post">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-close-modal="addPpfModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add PPF
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/investments.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Categories</h1>
+                <p class="page-subtitle">Manage your expense and income categories</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" id="addCategoryBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Category
+                </button>
+            </div>
+        </header>
+
+        <!-- Categories Content -->
+        <div class="categories-content" style="padding: 2rem;">
+            <!-- Tabs -->
+            <div class="tabs-container" style="background: var(--bg-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);">
+                <div class="tabs-header" style="display: flex; border-bottom: 1px solid var(--light-100); padding: 0 1rem;">
+                    <button class="tab-btn active" data-tab="expense-categories" style="display: flex; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; background: none; border: none; font-size: 0.9375rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; position: relative;">
+                        <i class="fas fa-arrow-up"></i>
+                        Expense Categories
+                    </button>
+                    <button class="tab-btn" data-tab="income-categories" style="display: flex; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; background: none; border: none; font-size: 0.9375rem; font-weight: 500; color: var(--text-secondary); cursor: pointer;">
+                        <i class="fas fa-arrow-down"></i>
+                        Income Categories
+                    </button>
+                </div>
+
+                <!-- Expense Categories Tab -->
+                <div class="tab-content active" id="expense-categories" style="padding: 1.5rem;">
+                    <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                        <!-- Default Expense Categories -->
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition);">
+                            <span style="font-size: 2rem;">🍔</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Food & Dining</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Restaurants, cafes, food delivery</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🛒</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Groceries</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Supermarket, vegetables, daily needs</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🚗</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Transportation</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Uber, auto, public transport</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">⛽</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Fuel</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Petrol, diesel, CNG</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🛍️</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Shopping</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Clothes, electronics, gadgets</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">📱</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Bills & Utilities</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Electricity, water, phone, internet</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🎬</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Entertainment</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Movies, games, events</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🏥</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Health & Medical</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Doctor, medicines, hospital</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">📚</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Education</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Courses, books, tuition</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Add custom category placeholder -->
+                        <div class="add-category-card" id="addExpenseCategory" style="border: 2px dashed var(--light-300); border-radius: var(--radius); padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);">
+                            <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--light-300); margin-bottom: 0.5rem;"></i>
+                            <p style="color: var(--text-muted);">Add Custom Category</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Income Categories Tab -->
+                <div class="tab-content" id="income-categories" style="padding: 1.5rem; display: none;">
+                    <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">💰</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Salary</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Monthly salary, bonus</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">💼</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Freelance</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Contract work, gigs</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">📈</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Investment Returns</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Dividends, interest, capital gains</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">🏠</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Rental Income</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Property rent</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="category-card" style="background: var(--light-100); border-radius: var(--radius); padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                            <span style="font-size: 2rem;">💸</span>
+                            <div style="flex: 1;">
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;">Cashback & Rewards</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Credit card rewards, cashback</p>
+                            </div>
+                            <div class="category-actions" style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-icon" style="width: 32px; height: 32px;"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Add custom category placeholder -->
+                        <div class="add-category-card" id="addIncomeCategory" style="border: 2px dashed var(--light-300); border-radius: var(--radius); padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);">
+                            <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--light-300); margin-bottom: 0.5rem;"></i>
+                            <p style="color: var(--text-muted);">Add Custom Category</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Category Modal -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Category</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="categoryForm" style="padding: 1.5rem;">
+                <div class="form-group">
+                    <label>Category Type</label>
+                    <div class="toggle-group">
+                        <button type="button" class="toggle-btn active" data-type="expense">Expense</button>
+                        <button type="button" class="toggle-btn" data-type="income">Income</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" id="categoryName" name="categoryName" placeholder="e.g., Pet Care" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Icon</label>
+                    <div class="emoji-picker" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.5rem; padding: 1rem; background: var(--light-100); border-radius: var(--radius); max-height: 200px; overflow-y: auto;">
+                        <button type="button" class="emoji-btn" data-emoji="🍔">🍔</button>
+                        <button type="button" class="emoji-btn" data-emoji="🛒">🛒</button>
+                        <button type="button" class="emoji-btn" data-emoji="🚗">🚗</button>
+                        <button type="button" class="emoji-btn" data-emoji="⛽">⛽</button>
+                        <button type="button" class="emoji-btn" data-emoji="🛍️">🛍️</button>
+                        <button type="button" class="emoji-btn" data-emoji="📱">📱</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎬">🎬</button>
+                        <button type="button" class="emoji-btn" data-emoji="🏥">🏥</button>
+                        <button type="button" class="emoji-btn" data-emoji="📚">📚</button>
+                        <button type="button" class="emoji-btn" data-emoji="✈️">✈️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🏠">🏠</button>
+                        <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
+                        <button type="button" class="emoji-btn" data-emoji="💼">💼</button>
+                        <button type="button" class="emoji-btn" data-emoji="📈">📈</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎁">🎁</button>
+                        <button type="button" class="emoji-btn" data-emoji="🐕">🐕</button>
+                        <button type="button" class="emoji-btn" data-emoji="💅">💅</button>
+                        <button type="button" class="emoji-btn" data-emoji="🏋️">🏋️</button>
+                        <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
+                        <button type="button" class="emoji-btn" data-emoji="☕">☕</button>
+                        <button type="button" class="emoji-btn" data-emoji="🍺">🍺</button>
+                        <button type="button" class="emoji-btn" data-emoji="💊">💊</button>
+                        <button type="button" class="emoji-btn" data-emoji="🔧">🔧</button>
+                        <button type="button" class="emoji-btn" data-emoji="📦">📦</button>
+                    </div>
+                    <input type="hidden" id="selectedEmoji" name="icon" value="📦">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDescription">Description (Optional)</label>
+                    <input type="text" id="categoryDescription" name="description" placeholder="Brief description">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryBudget">Monthly Budget (Optional)</label>
+                    <input type="number" id="categoryBudget" name="budget" placeholder="₹0.00" step="0.01">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCategory">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Save Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

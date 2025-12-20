@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI & Loans - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/emis.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">EMI & Loans</h1>
+                <p class="page-subtitle">Manage your loan payments</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" id="addEmiBtn">
+                    <i class="fas fa-plus"></i> Add EMI
+                </button>
+            </div>
+        </header>
+
+        <!-- EMI Content -->
+        <div class="investments-content">
+            <!-- Stats Cards -->
+            <section class="emi-stats">
+                <div class="emi-stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-1);">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                    <div class="stat-label">Total Outstanding</div>
+                    <div class="stat-value" id="totalOutstanding">₹0</div>
+                </div>
+                <div class="emi-stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-2);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-label">Monthly EMI</div>
+                    <div class="stat-value" id="monthlyEmi">₹0</div>
+                </div>
+                <div class="emi-stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-3);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-label">Active Loans</div>
+                    <div class="stat-value" id="activeLoans">0</div>
+                </div>
+                <div class="emi-stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-4);">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-label">Due This Month</div>
+                    <div class="stat-value" id="dueThisMonth">0</div>
+                </div>
+            </section>
+
+            <!-- Upcoming Payments Alert -->
+            <section class="upcoming-payments" id="upcomingPayments"></section>
+
+            <!-- EMI List -->
+            <section class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Your EMIs</h3>
+                </div>
+                <div id="emiList">
+                    <div class="empty-state" id="emiEmptyState">
+                        <i class="fas fa-credit-card"></i>
+                        <h4>No EMIs Added</h4>
+                        <p>Add your loan EMIs to track payments and get reminders</p>
+                        <button class="btn btn-primary" id="addEmiEmptyBtn">
+                            <i class="fas fa-plus"></i> Add Your First EMI
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Automation Settings -->
+            <section class="emi-automation">
+                <h3><i class="fas fa-robot"></i> EMI Automation</h3>
+                <div class="automation-options">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="autoRecordEmi" checked>
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Auto-record EMI as expense on due date</span>
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="emiReminders" checked>
+                        <span class="toggle-switch"></span>
+                        <span class="toggle-text">Send EMI payment reminders (3 days before)</span>
+                    </label>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="saveEmiSettings" style="margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add/Edit EMI Modal -->
+    <div class="modal" id="emiModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="emiModalTitle"><i class="fas fa-credit-card"></i> Add EMI</h3>
+                <button class="close-btn" id="closeEmiModal">&times;</button>
+            </div>
+            <form id="emiForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="emiName">Loan Name *</label>
+                        <input type="text" id="emiName" required placeholder="e.g., Home Loan, Car Loan">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emiBank">Bank/Lender *</label>
+                            <input type="text" id="emiBank" required placeholder="e.g., HDFC Bank">
+                        </div>
+                        <div class="form-group">
+                            <label for="emiAccount">Linked Account</label>
+                            <select id="emiAccount">
+                                <option value="">Select Account</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="loanAmount">Total Loan Amount *</label>
+                            <input type="number" id="loanAmount" required min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="emiAmount">Monthly EMI *</label>
+                            <input type="number" id="emiAmount" required min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interestRate">Interest Rate (%)</label>
+                            <input type="number" id="interestRate" min="0" max="100" step="0.01" placeholder="e.g., 8.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalTenure">Total Tenure (months) *</label>
+                            <input type="number" id="totalTenure" required min="1" placeholder="e.g., 60">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="paidEmis">EMIs Already Paid</label>
+                            <input type="number" id="paidEmis" min="0" value="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="emiDueDate">EMI Due Date *</label>
+                            <input type="number" id="emiDueDate" required min="1" max="31" placeholder="Day of month (1-31)">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emiStartDate">Start Date *</label>
+                            <input type="date" id="emiStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emiCategory">Category</label>
+                            <select id="emiCategory">
+                                <option value="home_loan">Home Loan</option>
+                                <option value="car_loan">Car Loan</option>
+                                <option value="personal_loan">Personal Loan</option>
+                                <option value="education_loan">Education Loan</option>
+                                <option value="credit_card">Credit Card EMI</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="emiNotes">Notes (Optional)</label>
+                        <textarea id="emiNotes" rows="2" placeholder="Any additional notes..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelEmi">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save EMI
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/emis.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts & Cards - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/accounts.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Accounts & Cards</h1>
+                <p class="page-subtitle">Manage your bank accounts, credit cards, and wallets</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" id="addAccountBtn">
+                    <i class="fas fa-plus"></i>
+                    Add Account
+                </button>
+            </div>
+        </header>
+
+        <!-- Accounts Content -->
+        <div class="accounts-content">
+            <!-- Summary Stats -->
+            <section class="account-stats">
+                <div class="stat-card" data-animate="card">
+                    <div class="stat-icon bank">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Bank Balance</h3>
+                        <p class="stat-amount" id="totalBankBalance">₹0.00</p>
+                    </div>
+                </div>
+                <div class="stat-card" data-animate="card">
+                    <div class="stat-icon credit">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Credit Limit</h3>
+                        <p class="stat-amount" id="totalCreditLimit">₹0.00</p>
+                    </div>
+                </div>
+                <div class="stat-card" data-animate="card">
+                    <div class="stat-icon used">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Credit Used</h3>
+                        <p class="stat-amount" id="totalCreditUsed">₹0.00</p>
+                    </div>
+                </div>
+                <div class="stat-card" data-animate="card">
+                    <div class="stat-icon wallet">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Cash in Wallet</h3>
+                        <p class="stat-amount" id="totalCash">₹0.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="bank-accounts">
+                        <i class="fas fa-university"></i>
+                        Bank Accounts
+                    </button>
+                    <button class="tab-btn" data-tab="credit-cards">
+                        <i class="fas fa-credit-card"></i>
+                        Credit Cards
+                    </button>
+                    <button class="tab-btn" data-tab="debit-cards">
+                        <i class="fas fa-credit-card"></i>
+                        Debit Cards
+                    </button>
+                    <button class="tab-btn" data-tab="wallets">
+                        <i class="fas fa-wallet"></i>
+                        Wallets & Cash
+                    </button>
+                </div>
+
+                <!-- Bank Accounts Tab -->
+                <div class="tab-content active" id="bank-accounts">
+                    <div class="accounts-grid" id="bankAccountsList">
+                        <!-- Bank accounts will be loaded dynamically -->
+                        <div class="add-card-placeholder" id="addBankAccount">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Add Bank Account</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credit Cards Tab -->
+                <div class="tab-content" id="credit-cards">
+                    <div class="cards-grid" id="creditCardsList">
+                        <!-- Credit cards will be loaded dynamically -->
+                        <div class="add-card-placeholder" id="addCreditCard">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Add Credit Card</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debit Cards Tab -->
+                <div class="tab-content" id="debit-cards">
+                    <div class="cards-grid" id="debitCardsList">
+                        <!-- Debit cards will be loaded dynamically -->
+                        <div class="add-card-placeholder" id="addDebitCard">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Add Debit Card</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallets Tab -->
+                <div class="tab-content" id="wallets">
+                    <div class="wallets-grid" id="walletsList">
+                        <!-- Wallets will be loaded dynamically -->
+                        <div class="add-card-placeholder" id="addWallet">
+                            <i class="fas fa-plus-circle"></i>
+                            <p>Add Wallet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credit Card Requirements Section -->
+            <section class="requirements-section card">
+                <div class="card-header">
+                    <h3>Credit Card Requirements Tracker</h3>
+                    <span class="quarter-badge" id="currentQuarter">Q4 2024</span>
+                </div>
+                <div class="requirements-table-container">
+                    <table class="requirements-table" id="requirementsTable">
+                        <thead>
+                            <tr>
+                                <th>Card Name</th>
+                                <th>Quarterly Min. Spend</th>
+                                <th>Current Spend</th>
+                                <th>Progress</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Requirements will be loaded dynamically -->
+                            <tr class="empty-row">
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-credit-card"></i>
+                                        <p>No credit cards with spending requirements</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add Account Modal -->
+    <div class="modal" id="accountModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Account</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="accountForm" class="account-form">
+                <input type="hidden" id="accountId" name="accountId">
+                <input type="hidden" id="accountType" name="accountType" value="bank">
+
+                <div class="form-group">
+                    <label for="accountName">Account Name</label>
+                    <input type="text" id="accountName" name="accountName" placeholder="e.g., HDFC Savings Account" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bankName">Bank / Institution</label>
+                        <select id="bankName" name="bankName" required>
+                            <option value="">Select Bank</option>
+                            <option value="HDFC">HDFC Bank</option>
+                            <option value="ICICI">ICICI Bank</option>
+                            <option value="SBI">State Bank of India</option>
+                            <option value="Axis">Axis Bank</option>
+                            <option value="Kotak">Kotak Mahindra Bank</option>
+                            <option value="Yes">Yes Bank</option>
+                            <option value="IndusInd">IndusInd Bank</option>
+                            <option value="IDFC">IDFC First Bank</option>
+                            <option value="RBL">RBL Bank</option>
+                            <option value="AU">AU Small Finance Bank</option>
+                            <option value="Paytm">Paytm Payments Bank</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number (Last 4 digits)</label>
+                        <input type="text" id="accountNumber" name="accountNumber" placeholder="XXXX" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="currentBalance">Current Balance (₹)</label>
+                        <input type="number" id="currentBalance" name="currentBalance" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="accountColor">Card Color</label>
+                        <div class="color-picker">
+                            <input type="radio" name="accountColor" value="gradient-1" id="color1" checked>
+                            <label for="color1" class="color-option gradient-1"></label>
+                            <input type="radio" name="accountColor" value="gradient-2" id="color2">
+                            <label for="color2" class="color-option gradient-2"></label>
+                            <input type="radio" name="accountColor" value="gradient-3" id="color3">
+                            <label for="color3" class="color-option gradient-3"></label>
+                            <input type="radio" name="accountColor" value="gradient-4" id="color4">
+                            <label for="color4" class="color-option gradient-4"></label>
+                            <input type="radio" name="accountColor" value="gradient-5" id="color5">
+                            <label for="color5" class="color-option gradient-5"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credit Card Specific Fields -->
+                <div class="credit-card-fields" id="creditCardFields" style="display: none;">
+                    <h4 class="section-title">Credit Card Details</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="creditLimit">Credit Limit (₹)</label>
+                            <input type="number" id="creditLimit" name="creditLimit" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="billingCycle">Billing Cycle Day</label>
+                            <input type="number" id="billingCycle" name="billingCycle" placeholder="1-31" min="1" max="31">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="minSpendQuarterly">Min. Quarterly Spend (₹)</label>
+                            <input type="number" id="minSpendQuarterly" name="minSpendQuarterly" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="annualFee">Annual Fee (₹)</label>
+                            <input type="number" id="annualFee" name="annualFee" placeholder="0.00" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rewardType">Reward Type</label>
+                        <select id="rewardType" name="rewardType">
+                            <option value="">Select Reward Type</option>
+                            <option value="cashback">Cashback</option>
+                            <option value="points">Reward Points</option>
+                            <option value="miles">Air Miles</option>
+                            <option value="none">No Rewards</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Wallet Specific Fields -->
+                <div class="wallet-fields" id="walletFields" style="display: none;">
+                    <h4 class="section-title">Wallet Details</h4>
+                    <div class="form-group">
+                        <label for="walletType">Wallet Type</label>
+                        <select id="walletType" name="walletType">
+                            <option value="cash">Cash</option>
+                            <option value="paytm">Paytm Wallet</option>
+                            <option value="phonepe">PhonePe Wallet</option>
+                            <option value="amazonpay">Amazon Pay</option>
+                            <option value="googlepay">Google Pay</option>
+                            <option value="other">Other Digital Wallet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" placeholder="Any additional notes..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAccount">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Save Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Delete Account</h2>
+                <button class="modal-close" id="closeDeleteModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Are you sure you want to delete this account? This action cannot be undone.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/accounts.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

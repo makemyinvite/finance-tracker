@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .docs-page {
+            min-height: 100vh;
+            background: var(--bg-main);
+        }
+        .docs-header {
+            background: var(--gradient-1);
+            padding: 3rem 2rem;
+            color: white;
+            text-align: center;
+        }
+        .docs-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .docs-header p {
+            opacity: 0.9;
+            font-size: 1.125rem;
+        }
+        .docs-nav {
+            background: var(--bg-card);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .docs-nav a {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+        .docs-nav a:hover {
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+        .docs-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .docs-section {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+        .docs-section h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--light-100);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .docs-section h3 {
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            margin: 1.5rem 0 0.75rem;
+        }
+        .docs-section p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .docs-section ul, .docs-section ol {
+            color: var(--text-secondary);
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .docs-section li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        .docs-section code {
+            background: var(--light-100);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+        .docs-section pre {
+            background: var(--dark);
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+        .docs-section pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+        .docs-table th, .docs-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-200);
+        }
+        .docs-table th {
+            background: var(--light-100);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .docs-table td {
+            color: var(--text-secondary);
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .feature-card {
+            background: var(--light-100);
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+        }
+        .feature-card h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feature-card p {
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            padding: 0;
+        }
+        .step-list li {
+            counter-increment: step;
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1rem;
+        }
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2rem;
+            height: 2rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .info-box {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+        .info-box ul {
+            margin: 0;
+        }
+        .info-box li {
+            margin-bottom: 0.375rem;
+        }
+        .alert-box {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .alert-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .alert-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+        .alert-box.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+        .back-link:hover {
+            background: var(--primary-dark);
+        }
+        .docs-footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        @media (max-width: 768px) {
+            .docs-header {
+                padding: 2rem 1rem;
+            }
+            .docs-header h1 {
+                font-size: 1.75rem;
+            }
+            .docs-content {
+                padding: 1rem;
+            }
+            .docs-section {
+                padding: 1.5rem;
+            }
+            .docs-nav {
+                padding: 0.75rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="docs-page">
+    <header class="docs-header">
+        <h1><i class="fas fa-wallet"></i> FinanceFlow</h1>
+        <p>Personal Finance Tracker - Documentation</p>
+    </header>
+
+    <nav class="docs-nav">
+        <a href="#overview">Overview</a>
+        <a href="#features">Features</a>
+        <a href="#setup">Setup</a>
+        <a href="#backend">Backend</a>
+        <a href="#api">API</a>
+        <a href="#auth">Authentication</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+    </nav>
+
+    <div class="docs-content">
+        <a href="login.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to App
+        </a>
+
+        <!-- Overview Section -->
+        <section class="docs-section" id="overview">
+            <h2><i class="fas fa-info-circle"></i> Overview</h2>
+            <p>FinanceFlow is a comprehensive personal finance management application built for GitHub Pages with Google Sheets as the backend database. It helps you track income, expenses, investments, EMIs, and provides financial calculators.</p>
+
+            <div class="alert-box info">
+                <i class="fas fa-lightbulb"></i>
+                <div>
+                    <strong>No server required!</strong> FinanceFlow runs entirely on static hosting (like GitHub Pages) and uses Google Sheets + Apps Script as a free backend.
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="docs-section" id="features">
+            <h2><i class="fas fa-star"></i> Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><i class="fas fa-lock"></i> Authentication</h4>
+                    <p>Secure login, logout, forgot password with email verification</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-chart-line"></i> Dashboard</h4>
+                    <p>Overview of balance, income, expenses with charts and quick actions</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-university"></i> Accounts</h4>
+                    <p>Track bank accounts, credit cards, debit cards, and digital wallets</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-exchange-alt"></i> Transactions</h4>
+                    <p>Record income, expenses, transfers with categories and tags</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-piggy-bank"></i> Investments</h4>
+                    <p>Track FD, RD, SIP, PPF investments with maturity calculations</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-calendar-check"></i> EMI Tracking</h4>
+                    <p>Schedule EMIs, track payments, get reminders before due dates</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-calculator"></i> Calculators</h4>
+                    <p>EMI, FD, RD, SIP, PPF calculators with amortization schedules</p>
+                </div>
+                <div class="feature-card">
+                    <h4><i class="fas fa-envelope"></i> Email Alerts</h4>
+                    <p>Automated EMI reminders, weekly summaries, auto-expense recording</p>
+                </div>
+            </div>
+
+            <h3>Calculator Features</h3>
+            <ul>
+                <li><strong>EMI Calculator</strong> - Calculate monthly EMI for home, car, personal loans</li>
+                <li><strong>Reverse EMI Calculator</strong> - Find interest rate when you know the EMI (uses binary search algorithm)</li>
+                <li><strong>Amortization Schedule</strong> - View monthly or yearly breakdown of principal vs interest</li>
+                <li><strong>FD/RD Calculator</strong> - Calculate maturity amount with compound interest</li>
+                <li><strong>SIP Calculator</strong> - Project mutual fund returns over time</li>
+                <li><strong>PPF Calculator</strong> - Calculate PPF maturity with tax benefits</li>
+            </ul>
+        </section>
+
+        <!-- Setup Section -->
+        <section class="docs-section" id="setup">
+            <h2><i class="fas fa-cogs"></i> Setup Instructions</h2>
+
+            <h3>Step 1: Create Google Sheet</h3>
+            <ol class="step-list">
+                <li>Go to <a href="https://sheets.google.com" target="_blank">Google Sheets</a></li>
+                <li>Create a new blank spreadsheet</li>
+                <li>Name it "FinanceFlow Database"</li>
+            </ol>
+
+            <h3>Step 2: Setup Google Apps Script</h3>
+            <ol class="step-list">
+                <li>In your spreadsheet, go to <strong>Extensions > Apps Script</strong></li>
+                <li>Delete any existing code in the editor</li>
+                <li>Copy the contents of <code>google-apps-script/Code.gs</code> and paste it</li>
+                <li>Click <strong>Save</strong> (Ctrl+S)</li>
+                <li>Name your project "FinanceFlow Backend"</li>
+            </ol>
+
+            <h3>Step 3: Deploy as Web App</h3>
+            <ol class="step-list">
+                <li>Click <strong>Deploy > New deployment</strong></li>
+                <li>Click the gear icon and select <strong>Web app</strong></li>
+                <li>Set "Execute as" to <strong>Me</strong></li>
+                <li>Set "Who has access" to <strong>Anyone</strong></li>
+                <li>Click <strong>Deploy</strong></li>
+                <li>Authorize the permissions when prompted</li>
+                <li>Copy the Web App URL</li>
+            </ol>
+
+            <h3>Step 4: Configure Frontend</h3>
+            <ol class="step-list">
+                <li>Open <code>js/config.js</code></li>
+                <li>Find <code>DEFAULT_WEB_APP_URL</code></li>
+                <li>Replace with your Web App URL</li>
+            </ol>
+
+            <h3>Step 5: Create Users</h3>
+            <div class="alert-box info">
+                <i class="fas fa-user-shield"></i>
+                <div>
+                    <strong>User Management</strong><br>
+                    Users can only be created through Google Sheets menu. There is no public registration.
+                </div>
+            </div>
+            <ol class="step-list">
+                <li>Go back to your Google Spreadsheet</li>
+                <li>Refresh the page to load the custom menu</li>
+                <li>Click <strong>FinanceFlow > Add New User</strong> in the menu</li>
+                <li>Enter the user's name, email, and password</li>
+                <li>The user account will be created and can now login</li>
+            </ol>
+
+            <h3>Step 6: Setup Email Notifications</h3>
+            <ol class="step-list">
+                <li>In the spreadsheet, click <strong>FinanceFlow > Setup Email Triggers</strong></li>
+                <li>Authorize Gmail permissions when prompted</li>
+                <li>This creates automated daily and weekly triggers</li>
+            </ol>
+
+            <h3>Step 7: Host on GitHub Pages</h3>
+            <ol class="step-list">
+                <li>Push your code to a GitHub repository</li>
+                <li>Go to <strong>Settings > Pages</strong></li>
+                <li>Select your branch and root folder</li>
+                <li>Your site will be live at <code>https://username.github.io/repo</code></li>
+            </ol>
+        </section>
+
+        <!-- Backend Section -->
+        <section class="docs-section" id="backend">
+            <h2><i class="fas fa-database"></i> Backend Architecture</h2>
+
+            <h3>How It Works</h3>
+            <p>FinanceFlow uses a serverless architecture with Google Sheets as the database:</p>
+
+            <pre><code>Frontend (HTML/JS)  -->  Google Apps Script (Web App)  -->  Google Sheets (Database)</code></pre>
+
+            <h3>Data Flow</h3>
+            <ol>
+                <li>Frontend sends POST request to the Web App URL with action and data</li>
+                <li>Apps Script receives the request and routes to appropriate function</li>
+                <li>Function reads/writes data to Google Sheets</li>
+                <li>Response is sent back as JSON</li>
+            </ol>
+
+            <h3>Google Sheets Structure</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Sheet Name</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Accounts</td><td>Bank accounts, cards, wallets</td></tr>
+                    <tr><td>Transactions</td><td>Income and expense records</td></tr>
+                    <tr><td>Categories</td><td>Custom transaction categories</td></tr>
+                    <tr><td>Settings</td><td>App configuration</td></tr>
+                    <tr><td>Users</td><td>Registered user accounts</td></tr>
+                    <tr><td>Sessions</td><td>Active login sessions</td></tr>
+                    <tr><td>Investments</td><td>FD, RD, SIP, PPF records</td></tr>
+                    <tr><td>EMIs</td><td>EMI schedules and payments</td></tr>
+                    <tr><td>NotificationSettings</td><td>Email preferences</td></tr>
+                    <tr><td>Logs</td><td>System logs (ERROR, WARNING, INFO)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Google Sheets Menu</h3>
+            <p>The FinanceFlow menu appears in your Google Spreadsheet. Use it to manage users and view logs.</p>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Menu Item</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Setup Sheets</td><td>Creates all required sheet tabs with headers</td></tr>
+                    <tr><td>Setup Email Triggers</td><td>Configures automated triggers for notifications</td></tr>
+                    <tr><td>Add New User</td><td>Create a new user account</td></tr>
+                    <tr><td>List All Users</td><td>View all registered users</td></tr>
+                    <tr><td>Delete User</td><td>Remove a user account</td></tr>
+                    <tr><td>View Logs</td><td>Navigate to the Logs sheet</td></tr>
+                    <tr><td>Clear All Data</td><td>Delete all data (with confirmation)</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Automated Triggers</h3>
+            <p>All automation runs on Google's servers - you don't need to keep any page open. Triggers execute automatically at scheduled times.</p>
+
+            <h4>Default Schedule</h4>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Function</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Daily 9 AM</td><td>sendEmiReminders()</td><td>Email reminders for EMIs due in 3 days</td></tr>
+                    <tr><td>Daily 10 AM</td><td>autoCreateEmiExpenses()</td><td>Auto-record EMI payments as expenses</td></tr>
+                    <tr><td>Monday 9 AM</td><td>sendWeeklySummary()</td><td>Weekly financial summary email</td></tr>
+                    <tr><td>1st of Month 9 AM</td><td>sendMonthlyReport()</td><td>Detailed monthly financial report</td></tr>
+                </tbody>
+            </table>
+
+            <h4>Customizable Settings (Settings Page)</h4>
+            <p>Go to <strong>Settings > Automation & Scheduled Tasks</strong> to customize:</p>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Options</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Auto-Record EMI</td><td>Toggle + Time (6 AM - 12 PM)</td><td>Auto-add EMI as expense on due date</td></tr>
+                    <tr><td>EMI Reminders</td><td>Toggle + Days (1-7) + Time</td><td>Email reminders before EMI due</td></tr>
+                    <tr><td>Weekly Summary</td><td>Toggle + Day (Mon/Fri/Sun) + Time</td><td>Weekly spending summary email</td></tr>
+                    <tr><td>Monthly Report</td><td>Toggle + Day (1st/5th/15th/Last) + Time</td><td>Detailed monthly report with trends</td></tr>
+                    <tr><td>Recurring Expenses</td><td>Toggle</td><td>Auto-add recurring bills/subscriptions</td></tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle"></i> How Automation Works</h4>
+                <ul>
+                    <li><strong>Server-Side:</strong> All automation runs on Google's servers, not in your browser</li>
+                    <li><strong>No Action Required:</strong> Once configured, triggers run automatically</li>
+                    <li><strong>Background Processing:</strong> System checks conditions and performs actions</li>
+                    <li><strong>Gmail Integration:</strong> Uses your Gmail to send notifications</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- API Section -->
+        <section class="docs-section" id="api">
+            <h2><i class="fas fa-plug"></i> API Reference</h2>
+
+            <h3>Authentication Actions</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>login</code></td><td>email, password</td><td>Authenticate user</td></tr>
+                    <tr><td><code>logout</code></td><td>token</td><td>End session</td></tr>
+                    <tr><td><code>verifyToken</code></td><td>token</td><td>Validate session</td></tr>
+                    <tr><td><code>forgotPassword</code></td><td>email</td><td>Send reset code</td></tr>
+                    <tr><td><code>resetPassword</code></td><td>email, code, newPassword</td><td>Reset with code</td></tr>
+                </tbody>
+            </table>
+
+            <div class="alert-box info">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>Note:</strong> User registration is only available via Google Sheets menu (FinanceFlow > Add New User). There is no public registration API.
+                </div>
+            </div>
+
+            <h3>Transaction Actions</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>addTransaction</code></td><td>transaction object</td><td>Add new transaction</td></tr>
+                    <tr><td><code>updateTransaction</code></td><td>id, transaction</td><td>Update transaction</td></tr>
+                    <tr><td><code>deleteTransaction</code></td><td>id</td><td>Delete transaction</td></tr>
+                    <tr><td><code>getAllTransactions</code></td><td>-</td><td>Get all transactions</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Investment & EMI Actions</h3>
+            <table class="docs-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Parameters</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>saveInvestment</code></td><td>investment object</td><td>Add/update investment</td></tr>
+                    <tr><td><code>getInvestments</code></td><td>-</td><td>Get all investments</td></tr>
+                    <tr><td><code>saveEmi</code></td><td>emi object</td><td>Add EMI schedule</td></tr>
+                    <tr><td><code>getEmis</code></td><td>-</td><td>Get all EMIs</td></tr>
+                    <tr><td><code>updateEmi</code></td><td>id, emi</td><td>Update EMI</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Authentication Section -->
+        <section class="docs-section" id="auth">
+            <h2><i class="fas fa-shield-alt"></i> Authentication Flow</h2>
+
+            <h3>Login Flow</h3>
+            <ol>
+                <li>User enters email and password</li>
+                <li>Frontend sends <code>login</code> action to backend</li>
+                <li>Backend verifies password hash</li>
+                <li>Session token is created (30-day expiry)</li>
+                <li>Token stored in localStorage and Sessions sheet</li>
+                <li>User redirected to dashboard</li>
+            </ol>
+
+            <h3>Password Reset Flow</h3>
+            <ol>
+                <li>User clicks "Forgot Password?"</li>
+                <li>User enters email address</li>
+                <li>Backend generates 6-digit code (valid for 15 minutes)</li>
+                <li>Code sent to user's email</li>
+                <li>User enters code and new password</li>
+                <li>Backend verifies code and updates password</li>
+                <li>All existing sessions are cleared</li>
+            </ol>
+
+            <h3>Security Features</h3>
+            <ul>
+                <li>Passwords hashed with SHA-256</li>
+                <li>UUID-based session tokens</li>
+                <li>30-day session expiry</li>
+                <li>Reset codes expire in 15 minutes</li>
+                <li>All sessions cleared on password reset</li>
+            </ul>
+        </section>
+
+        <!-- Troubleshooting Section -->
+        <section class="docs-section" id="troubleshooting">
+            <h2><i class="fas fa-wrench"></i> Troubleshooting</h2>
+
+            <h3>CORS Errors</h3>
+            <div class="alert-box warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>Opening HTML files directly (file://) will cause CORS errors. Always use a web server.</div>
+            </div>
+            <p><strong>Solutions:</strong></p>
+            <ul>
+                <li>Use GitHub Pages hosting</li>
+                <li>Run local server: <code>python -m http.server 8000</code></li>
+                <li>Use VS Code Live Server extension</li>
+            </ul>
+
+            <h3>Login Not Working</h3>
+            <ul>
+                <li>Verify Web App URL in <code>js/config.js</code></li>
+                <li>Ensure Apps Script is deployed as Web App</li>
+                <li>Check "Anyone" has access to the Web App</li>
+                <li>Redeploy after code changes</li>
+            </ul>
+
+            <h3>Emails Not Sending</h3>
+            <ul>
+                <li>Run <code>setupNotificationTriggers()</code> from Apps Script menu</li>
+                <li>Authorize Gmail permissions</li>
+                <li>Check email address in notification settings</li>
+                <li>Check Apps Script execution logs for errors</li>
+            </ul>
+
+            <h3>Data Not Syncing</h3>
+            <ul>
+                <li>Check browser console for errors (F12)</li>
+                <li>Verify Google Sheets API permissions</li>
+                <li>Ensure spreadsheet is not deleted/moved</li>
+                <li>Try clearing localStorage and re-login</li>
+            </ul>
+        </section>
+
+        <div class="docs-footer">
+            <p>FinanceFlow - Personal Finance Tracker</p>
+            <p>Built with HTML, CSS, JavaScript, and Google Apps Script</p>
+        </div>
+    </div>
+</body>
+</html>

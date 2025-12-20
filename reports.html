@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/reports.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Reports & Analytics</h1>
+                <p class="page-subtitle">Analyze your spending patterns and financial health</p>
+            </div>
+            <div class="header-right">
+                <div class="period-selector">
+                    <button class="period-btn" data-period="week">Week</button>
+                    <button class="period-btn active" data-period="month">Month</button>
+                    <button class="period-btn" data-period="quarter">Quarter</button>
+                    <button class="period-btn" data-period="year">Year</button>
+                </div>
+                <div class="month-picker">
+                    <button class="btn btn-icon" id="prevMonth">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="currentMonth">December 2024</span>
+                    <button class="btn btn-icon" id="nextMonth">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <button class="btn btn-secondary" id="exportReport">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+            </div>
+        </header>
+
+        <!-- Reports Content -->
+        <div class="reports-content">
+            <!-- Overview Cards -->
+            <section class="overview-section">
+                <div class="overview-card income" data-animate="card">
+                    <div class="overview-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="overview-info">
+                        <span class="overview-label">Total Income</span>
+                        <span class="overview-value" id="reportIncome">₹0.00</span>
+                        <span class="overview-change positive">
+                            <i class="fas fa-arrow-up"></i> 12.5% vs last month
+                        </span>
+                    </div>
+                </div>
+
+                <div class="overview-card expense" data-animate="card">
+                    <div class="overview-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="overview-info">
+                        <span class="overview-label">Total Expenses</span>
+                        <span class="overview-value" id="reportExpense">₹0.00</span>
+                        <span class="overview-change negative">
+                            <i class="fas fa-arrow-up"></i> 8.3% vs last month
+                        </span>
+                    </div>
+                </div>
+
+                <div class="overview-card savings" data-animate="card">
+                    <div class="overview-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <div class="overview-info">
+                        <span class="overview-label">Net Savings</span>
+                        <span class="overview-value" id="reportSavings">₹0.00</span>
+                        <span class="overview-change positive">
+                            <i class="fas fa-arrow-up"></i> 15.2% vs last month
+                        </span>
+                    </div>
+                </div>
+
+                <div class="overview-card rate" data-animate="card">
+                    <div class="overview-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="overview-info">
+                        <span class="overview-label">Savings Rate</span>
+                        <span class="overview-value" id="reportSavingsRate">0%</span>
+                        <span class="overview-change neutral">
+                            Target: 30%
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Row 1 -->
+            <section class="charts-row">
+                <div class="chart-card large" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>Income vs Expenses</h3>
+                        <div class="chart-legend">
+                            <span class="legend-item income">
+                                <span class="legend-color"></span>
+                                Income
+                            </span>
+                            <span class="legend-item expense">
+                                <span class="legend-color"></span>
+                                Expenses
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="incomeExpenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>Expense Categories</h3>
+                        <button class="btn btn-icon">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Row 2 -->
+            <section class="charts-row">
+                <div class="chart-card" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>Payment Methods</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>Daily Spending</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="dailySpendingChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>Account Balances</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="accountBalanceChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Category Breakdown -->
+            <section class="breakdown-section">
+                <div class="breakdown-card card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Category Breakdown</h3>
+                        <select class="filter-select" id="breakdownType">
+                            <option value="expense">Expenses</option>
+                            <option value="income">Income</option>
+                        </select>
+                    </div>
+                    <div class="category-list" id="categoryBreakdown">
+                        <!-- Category items will be loaded dynamically -->
+                        <div class="category-item">
+                            <div class="category-info">
+                                <span class="category-icon food">🍔</span>
+                                <div>
+                                    <span class="category-name">Food & Dining</span>
+                                    <span class="category-count">24 transactions</span>
+                                </div>
+                            </div>
+                            <div class="category-amount">
+                                <span class="amount">₹12,500.00</span>
+                                <div class="category-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 35%"></div>
+                                    </div>
+                                    <span class="percentage">35%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trends-card card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Spending Trends</h3>
+                    </div>
+                    <div class="trends-list">
+                        <div class="trend-item increase">
+                            <div class="trend-icon">
+                                <i class="fas fa-arrow-trend-up"></i>
+                            </div>
+                            <div class="trend-info">
+                                <span class="trend-category">Shopping</span>
+                                <span class="trend-change">+₹3,500 (28%) vs last month</span>
+                            </div>
+                        </div>
+                        <div class="trend-item decrease">
+                            <div class="trend-icon">
+                                <i class="fas fa-arrow-trend-down"></i>
+                            </div>
+                            <div class="trend-info">
+                                <span class="trend-category">Entertainment</span>
+                                <span class="trend-change">-₹1,200 (15%) vs last month</span>
+                            </div>
+                        </div>
+                        <div class="trend-item stable">
+                            <div class="trend-icon">
+                                <i class="fas fa-minus"></i>
+                            </div>
+                            <div class="trend-info">
+                                <span class="trend-category">Bills & Utilities</span>
+                                <span class="trend-change">No significant change</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Transactions -->
+            <section class="top-transactions-section">
+                <div class="card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Top Expenses This Month</h3>
+                        <a href="transactions.html" class="view-all">View All</a>
+                    </div>
+                    <div class="top-transactions-list" id="topExpenses">
+                        <!-- Top expenses loaded dynamically -->
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>No expenses recorded</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monthly Comparison -->
+            <section class="comparison-section">
+                <div class="chart-card wide" data-animate="chart">
+                    <div class="chart-header">
+                        <h3>6-Month Comparison</h3>
+                        <div class="chart-legend">
+                            <span class="legend-item income">
+                                <span class="legend-color"></span>
+                                Income
+                            </span>
+                            <span class="legend-item expense">
+                                <span class="legend-color"></span>
+                                Expenses
+                            </span>
+                            <span class="legend-item savings">
+                                <span class="legend-color"></span>
+                                Savings
+                            </span>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="monthlyComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Budget Progress -->
+            <section class="budget-section">
+                <div class="card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Budget Progress</h3>
+                        <button class="btn btn-secondary btn-sm">
+                            <i class="fas fa-cog"></i> Manage Budgets
+                        </button>
+                    </div>
+                    <div class="budget-list" id="budgetProgress">
+                        <div class="budget-item">
+                            <div class="budget-info">
+                                <span class="budget-category">
+                                    <span class="category-icon">🍔</span>
+                                    Food & Dining
+                                </span>
+                                <span class="budget-amounts">
+                                    ₹8,500 of ₹15,000
+                                </span>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress safe" style="width: 57%"></div>
+                                </div>
+                                <span class="progress-percent">57%</span>
+                            </div>
+                        </div>
+                        <div class="budget-item">
+                            <div class="budget-info">
+                                <span class="budget-category">
+                                    <span class="category-icon">🛍️</span>
+                                    Shopping
+                                </span>
+                                <span class="budget-amounts">
+                                    ₹9,200 of ₹10,000
+                                </span>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress warning" style="width: 92%"></div>
+                                </div>
+                                <span class="progress-percent">92%</span>
+                            </div>
+                        </div>
+                        <div class="budget-item">
+                            <div class="budget-info">
+                                <span class="budget-category">
+                                    <span class="category-icon">🎬</span>
+                                    Entertainment
+                                </span>
+                                <span class="budget-amounts">
+                                    ₹6,500 of ₹5,000
+                                </span>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress danger" style="width: 100%"></div>
+                                </div>
+                                <span class="progress-percent over">130%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

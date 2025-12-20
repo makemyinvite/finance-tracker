@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceFlow - Personal Finance Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item active">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle" id="currentDate"></p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" id="quickAddBtn">
+                    <i class="fas fa-plus"></i>
+                    Quick Add
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Summary Cards -->
+            <section class="summary-section">
+                <div class="summary-card card-gradient-1" data-animate="card">
+                    <div class="card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Total Balance</h3>
+                        <p class="amount" id="totalBalance">₹0.00</p>
+                        <span class="trend positive">
+                            <i class="fas fa-arrow-up"></i> 12.5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card card-gradient-2" data-animate="card">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Monthly Income</h3>
+                        <p class="amount" id="monthlyIncome">₹0.00</p>
+                        <span class="trend positive">
+                            <i class="fas fa-arrow-up"></i> 8.2%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card card-gradient-3" data-animate="card">
+                    <div class="card-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Monthly Expenses</h3>
+                        <p class="amount" id="monthlyExpenses">₹0.00</p>
+                        <span class="trend negative">
+                            <i class="fas fa-arrow-down"></i> 5.3%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card card-gradient-4" data-animate="card">
+                    <div class="card-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Credit Used</h3>
+                        <p class="amount" id="creditUsed">₹0.00</p>
+                        <div class="progress-bar">
+                            <div class="progress" id="creditProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Transactions Alert -->
+            <section class="pending-transactions-section" id="pendingTransactionsSection" style="display: none;">
+                <div class="card pending-alert" data-animate="card" style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #d97706;">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h3 style="display: flex; align-items: center; gap: 0.5rem; color: #92400e;">
+                            <i class="fas fa-clock"></i> Pending Transactions
+                        </h3>
+                        <span class="pending-count" id="pendingCount" style="background: #d97706; color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 600;">0</span>
+                    </div>
+                    <p style="color: #a16207; font-size: 0.875rem; padding: 0 1.5rem; margin-bottom: 1rem;">
+                        These scheduled transactions are awaiting your confirmation. Please approve or cancel them.
+                    </p>
+                    <div class="pending-list" id="pendingList" style="padding: 0 1.5rem 1.5rem;"></div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container card" data-animate="chart">
+                    <div class="card-header">
+                        <h3>Spending Overview</h3>
+                        <select class="chart-filter" id="spendingPeriod">
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <canvas id="spendingChart"></canvas>
+                </div>
+
+                <div class="chart-container card" data-animate="chart">
+                    <div class="card-header">
+                        <h3>Category Breakdown</h3>
+                        <button class="btn btn-icon">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Recent Transactions & Accounts -->
+            <section class="bottom-section">
+                <div class="recent-transactions card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Recent Transactions</h3>
+                        <a href="transactions.html" class="view-all">View All</a>
+                    </div>
+                    <div class="transactions-list" id="recentTransactions">
+                        <!-- Transactions will be loaded dynamically -->
+                        <div class="empty-state">
+                            <i class="fas fa-receipt"></i>
+                            <p>No transactions yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accounts-overview card" data-animate="list">
+                    <div class="card-header">
+                        <h3>My Accounts</h3>
+                        <a href="accounts.html" class="view-all">View All</a>
+                    </div>
+                    <div class="accounts-list" id="accountsList">
+                        <!-- Accounts will be loaded dynamically -->
+                        <div class="empty-state">
+                            <i class="fas fa-university"></i>
+                            <p>No accounts added</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upcoming Bills -->
+            <section class="bills-section">
+                <div class="upcoming-bills card" data-animate="list">
+                    <div class="card-header">
+                        <h3>Upcoming Bills & Reminders</h3>
+                        <button class="btn btn-secondary btn-sm">
+                            <i class="fas fa-plus"></i> Add Bill
+                        </button>
+                    </div>
+                    <div class="bills-list" id="billsList">
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-check"></i>
+                            <p>No upcoming bills</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Quick Add Modal -->
+    <div class="modal" id="quickAddModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Quick Add Transaction</h2>
+                <button class="modal-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="quickAddForm" class="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transactionType">Type</label>
+                        <div class="toggle-group">
+                            <button type="button" class="toggle-btn active" data-type="expense">Expense</button>
+                            <button type="button" class="toggle-btn" data-type="income">Income</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" placeholder="What was this for?" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="transport">🚗 Transportation</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="bills">📱 Bills & Utilities</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="health">🏥 Health</option>
+                            <option value="education">📚 Education</option>
+                            <option value="salary">💰 Salary</option>
+                            <option value="investment">📈 Investment</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" name="paymentMethod" required>
+                            <option value="">Select Method</option>
+                            <option value="cash">💵 Cash</option>
+                            <option value="upi">📱 UPI</option>
+                            <option value="credit">💳 Credit Card</option>
+                            <option value="debit">💳 Debit Card</option>
+                            <option value="netbanking">🏦 Net Banking</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="account">Account</label>
+                    <select id="account" name="account" required>
+                        <option value="">Select Account</option>
+                        <!-- Accounts loaded dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" placeholder="Any additional notes..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelAdd">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <!-- Left Side - Branding -->
+        <div class="auth-branding">
+            <div class="branding-content">
+                <div class="logo-large">
+                    <i class="fas fa-wallet"></i>
+                    <h1>FinanceFlow</h1>
+                </div>
+                <p class="tagline">Your Personal Finance Companion</p>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Track expenses & income</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Manage investments & savings</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-calculator"></i>
+                        <span>EMI & savings calculators</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-bell"></i>
+                        <span>Email reminders & alerts</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-cloud"></i>
+                        <span>Sync with Google Sheets</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Auth Forms -->
+        <div class="auth-forms">
+            <!-- Login Form -->
+            <div class="auth-form-container" id="loginForm">
+                <h2>Welcome Back</h2>
+                <p class="form-subtitle">Sign in to continue to FinanceFlow</p>
+
+                <form id="loginFormElement">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" onclick="showForm('forgot')">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+
+                <!-- Demo Account Info -->
+                <div class="demo-info" style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius); text-align: center;">
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                        <i class="fas fa-flask" style="color: #f59e0b; margin-right: 0.5rem;"></i>
+                        <strong>Try Demo Mode</strong>
+                    </p>
+                    <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        Explore all features with local storage only
+                    </p>
+                    <div style="font-family: monospace; background: var(--bg-card); padding: 0.5rem; border-radius: var(--radius-sm); font-size: 0.8125rem;">
+                        <div><strong>Email:</strong> demo@finance.com</div>
+                        <div><strong>Password:</strong> demo</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div class="auth-form-container hidden" id="forgotForm">
+                <h2>Forgot Password</h2>
+                <p class="form-subtitle">Enter your email to receive a reset code</p>
+
+                <form id="forgotFormElement">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="forgotEmail" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Send Reset Code
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p><a href="#" onclick="showForm('login')"><i class="fas fa-arrow-left"></i> Back to Sign In</a></p>
+                </div>
+            </div>
+
+            <!-- Reset Password Form -->
+            <div class="auth-form-container hidden" id="resetForm">
+                <h2>Reset Password</h2>
+                <p class="form-subtitle">Enter the code sent to your email</p>
+
+                <form id="resetFormElement">
+                    <div class="form-group">
+                        <label for="resetCode">Reset Code</label>
+                        <div class="code-inputs">
+                            <input type="text" id="resetCode" maxlength="6" placeholder="000000" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="newPassword" placeholder="Enter new password" required minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmNewPassword" placeholder="Confirm new password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-key"></i> Reset Password
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p><a href="#" onclick="showForm('forgot')">Didn't receive code? Resend</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="auth-page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

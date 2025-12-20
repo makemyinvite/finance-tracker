@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - FinanceFlow</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinanceFlow</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="accounts.html" class="nav-link">
+                    <i class="fas fa-university"></i>
+                    <span>Accounts & Cards</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Transactions</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="investments.html" class="nav-link">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Investments</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="emis.html" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span>EMI & Loans</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="calculators.html" class="nav-link">
+                    <i class="fas fa-calculator"></i>
+                    <span>Calculators</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="categories.html" class="nav-link">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="logs.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>Audit Logs</span>
+                </a>
+            </li>
+            <li class="nav-item active">
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">User</span>
+                    <span class="user-email" id="userEmail"></span>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title">Settings</h1>
+                <p class="page-subtitle">Configure your FinanceFlow preferences</p>
+            </div>
+        </header>
+
+        <!-- Settings Content -->
+        <div class="settings-content" style="padding: 2rem;">
+            <!-- Google Sheets Connection -->
+            <section class="settings-section card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fab fa-google" style="color: #4285f4; margin-right: 0.5rem;"></i> Google Sheets Connection</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <div class="form-group">
+                        <label for="sheetUrl">Google Sheets URL</label>
+                        <input type="url" id="sheetUrl" name="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." style="width: 100%;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            Enter the URL of your Google Sheet. Make sure to deploy the Apps Script as a Web App.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="webAppUrl">Web App URL (Deployed Script)</label>
+                        <input type="url" id="webAppUrl" name="webAppUrl" placeholder="https://script.google.com/macros/s/.../exec" style="width: 100%;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            This is the deployed URL of your Google Apps Script.
+                        </small>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="testConnection">
+                            <i class="fas fa-plug"></i> Test Connection
+                        </button>
+                        <button class="btn btn-secondary" id="saveConnection">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                        <span id="connectionStatus" style="font-size: 0.875rem; color: var(--text-muted); flex-shrink: 0;">
+                            <i class="fas fa-circle" style="color: var(--light-300);"></i> Not connected
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- General Preferences -->
+            <section class="settings-section card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fas fa-sliders-h" style="margin-right: 0.5rem;"></i> General Preferences</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <div class="form-row" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="currency">Currency</label>
+                            <select id="currency" name="currency">
+                                <option value="INR" selected>₹ Indian Rupee (INR)</option>
+                                <option value="USD">$ US Dollar (USD)</option>
+                                <option value="EUR">€ Euro (EUR)</option>
+                                <option value="GBP">£ British Pound (GBP)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat" name="dateFormat">
+                                <option value="DD/MM/YYYY" selected>DD/MM/YYYY</option>
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="fiscalYearStart">Fiscal Year Start</label>
+                            <select id="fiscalYearStart" name="fiscalYearStart">
+                                <option value="1">January</option>
+                                <option value="4" selected>April (India)</option>
+                                <option value="7">July</option>
+                                <option value="10">October</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="weekStart">Week Starts On</label>
+                            <select id="weekStart" name="weekStart">
+                                <option value="0">Sunday</option>
+                                <option value="1" selected>Monday</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Management -->
+            <section class="settings-section card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fas fa-database" style="margin-right: 0.5rem;"></i> Data Management</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+                        <button class="btn btn-secondary" id="exportData">
+                            <i class="fas fa-download"></i> Export All Data
+                        </button>
+                        <button class="btn btn-secondary" id="importData">
+                            <i class="fas fa-upload"></i> Import Data
+                        </button>
+                        <button class="btn btn-secondary" id="syncNow">
+                            <i class="fas fa-sync"></i> Sync Now
+                        </button>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.1); border-radius: var(--radius); padding: 1rem; border-left: 4px solid var(--error);">
+                        <h4 style="color: var(--error); margin-bottom: 0.5rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Danger Zone
+                        </h4>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                            These actions are irreversible. Please be careful.
+                        </p>
+                        <button class="btn btn-danger" id="clearLocalData">
+                            <i class="fas fa-trash"></i> Clear Local Data
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Automation & Scheduled Tasks -->
+            <section class="settings-section card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fas fa-clock" style="margin-right: 0.5rem;"></i> Automation & Scheduled Tasks</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.5rem;">
+                        Configure automated tasks that run on Google's servers. These work even when you're not using the app.
+                    </p>
+
+                    <!-- Auto EMI Recording -->
+                    <div style="background: var(--light-100); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;"><i class="fas fa-credit-card" style="color: var(--primary); margin-right: 0.5rem;"></i>Auto-Record EMI Payments</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Automatically add EMI as expense on payment day</p>
+                            </div>
+                            <label class="toggle-label" style="cursor: pointer;">
+                                <input type="checkbox" id="autoRecordEmi" checked style="display: none;">
+                                <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--primary); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            </label>
+                        </div>
+                        <div class="form-row" style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">Run at time</label>
+                                <select id="emiRecordTime" style="width: 100%;">
+                                    <option value="6">6:00 AM</option>
+                                    <option value="7">7:00 AM</option>
+                                    <option value="8">8:00 AM</option>
+                                    <option value="9">9:00 AM</option>
+                                    <option value="10" selected>10:00 AM</option>
+                                    <option value="11">11:00 AM</option>
+                                    <option value="12">12:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMI Reminders -->
+                    <div style="background: var(--light-100); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;"><i class="fas fa-bell" style="color: var(--accent-1); margin-right: 0.5rem;"></i>EMI Payment Reminders</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Get email reminders before EMI due date</p>
+                            </div>
+                            <label class="toggle-label" style="cursor: pointer;">
+                                <input type="checkbox" id="emiReminders" checked style="display: none;">
+                                <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--primary); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            </label>
+                        </div>
+                        <div class="form-row" style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">Remind me</label>
+                                <select id="emiReminderDays" style="width: 100%;">
+                                    <option value="1">1 day before</option>
+                                    <option value="2">2 days before</option>
+                                    <option value="3" selected>3 days before</option>
+                                    <option value="5">5 days before</option>
+                                    <option value="7">1 week before</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">Send at time</label>
+                                <select id="emiReminderTime" style="width: 100%;">
+                                    <option value="7">7:00 AM</option>
+                                    <option value="8">8:00 AM</option>
+                                    <option value="9" selected>9:00 AM</option>
+                                    <option value="10">10:00 AM</option>
+                                    <option value="18">6:00 PM</option>
+                                    <option value="20">8:00 PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Summary -->
+                    <div style="background: var(--light-100); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;"><i class="fas fa-chart-bar" style="color: var(--secondary); margin-right: 0.5rem;"></i>Weekly Financial Summary</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Receive weekly spending summary via email</p>
+                            </div>
+                            <label class="toggle-label" style="cursor: pointer;">
+                                <input type="checkbox" id="weeklySummary" style="display: none;">
+                                <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--light-200); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            </label>
+                        </div>
+                        <div class="form-row" style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">Send on</label>
+                                <select id="summaryDay" style="width: 100%;">
+                                    <option value="1" selected>Monday</option>
+                                    <option value="5">Friday</option>
+                                    <option value="0">Sunday</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">At time</label>
+                                <select id="summaryTime" style="width: 100%;">
+                                    <option value="7">7:00 AM</option>
+                                    <option value="8">8:00 AM</option>
+                                    <option value="9" selected>9:00 AM</option>
+                                    <option value="18">6:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+                                <button type="button" class="btn btn-secondary btn-sm" id="sendWeeklySummaryNow" style="white-space: nowrap;">
+                                    <i class="fas fa-paper-plane"></i> Send Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Report -->
+                    <div style="background: var(--light-100); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;"><i class="fas fa-file-invoice" style="color: var(--accent-2); margin-right: 0.5rem;"></i>Monthly Financial Report</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Detailed monthly report with income, expenses, and trends</p>
+                            </div>
+                            <label class="toggle-label" style="cursor: pointer;">
+                                <input type="checkbox" id="monthlyReport" style="display: none;">
+                                <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--light-200); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            </label>
+                        </div>
+                        <div class="form-row" style="display: flex; gap: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">Send on day</label>
+                                <select id="monthlyReportDay" style="width: 100%;">
+                                    <option value="1" selected>1st of month</option>
+                                    <option value="5">5th of month</option>
+                                    <option value="15">15th of month</option>
+                                    <option value="last">Last day of month</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">At time</label>
+                                <select id="monthlyReportTime" style="width: 100%;">
+                                    <option value="7">7:00 AM</option>
+                                    <option value="8">8:00 AM</option>
+                                    <option value="9" selected>9:00 AM</option>
+                                    <option value="18">6:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+                                <button type="button" class="btn btn-secondary btn-sm" id="sendMonthlyReportNow" style="white-space: nowrap;">
+                                    <i class="fas fa-paper-plane"></i> Send Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recurring Expenses -->
+                    <div style="background: var(--light-100); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.25rem;"><i class="fas fa-redo" style="color: var(--accent-3); margin-right: 0.5rem;"></i>Recurring Transactions</h4>
+                                <p style="font-size: 0.8125rem; color: var(--text-muted);">Handle recurring expenses (bills, subscriptions, EMIs)</p>
+                            </div>
+                            <label class="toggle-label" style="cursor: pointer;">
+                                <input type="checkbox" id="autoRecurring" checked style="display: none;">
+                                <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--primary); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            </label>
+                        </div>
+                        <div class="form-row" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                            <div class="form-group" style="flex: 1;">
+                                <label style="font-size: 0.8125rem;">When scheduled date arrives</label>
+                                <select id="recurringMode" style="width: 100%;">
+                                    <option value="auto">Auto-add to transactions</option>
+                                    <option value="confirm" selected>Ask for confirmation first</option>
+                                </select>
+                                <small style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">
+                                    "Confirm" will show pending transactions for you to approve or cancel
+                                </small>
+                            </div>
+                        </div>
+                        <a href="transactions.html" style="font-size: 0.8125rem; color: var(--primary);">
+                            <i class="fas fa-plus"></i> Manage recurring expenses in Transactions
+                        </a>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notifyEmail">Notification Email (To)</label>
+                        <input type="email" id="notifyEmail" placeholder="your.email@gmail.com" style="width: 100%;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            Primary email address for all automated notifications.
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="notifyCc">CC Recipients (Optional)</label>
+                        <input type="text" id="notifyCc" placeholder="email1@example.com, email2@example.com" style="width: 100%;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            Additional email addresses to receive copies. Separate multiple emails with commas.
+                        </small>
+                    </div>
+
+                    <button class="btn btn-primary" id="saveAutomationSettings" style="margin-top: 1rem;">
+                        <i class="fas fa-save"></i> Save Automation Settings
+                    </button>
+                </div>
+            </section>
+
+            <!-- Appearance -->
+            <section class="settings-section card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h3><i class="fas fa-palette" style="margin-right: 0.5rem;"></i> Appearance</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <div class="form-group">
+                        <label>Theme</label>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <label class="theme-option" style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                                <input type="radio" name="theme" value="light" checked style="display: none;">
+                                <div style="width: 80px; height: 60px; background: white; border: 2px solid var(--light-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; transition: var(--transition);">
+                                    <i class="fas fa-sun" style="color: var(--accent-1);"></i>
+                                </div>
+                                <span style="margin-top: 0.5rem; font-size: 0.875rem;">Light</span>
+                            </label>
+                            <label class="theme-option" style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                                <input type="radio" name="theme" value="dark" style="display: none;">
+                                <div style="width: 80px; height: 60px; background: var(--dark); border: 2px solid var(--dark-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; transition: var(--transition);">
+                                    <i class="fas fa-moon" style="color: var(--primary-light);"></i>
+                                </div>
+                                <span style="margin-top: 0.5rem; font-size: 0.875rem;">Dark</span>
+                            </label>
+                            <label class="theme-option" style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+                                <input type="radio" name="theme" value="auto" style="display: none;">
+                                <div style="width: 80px; height: 60px; background: linear-gradient(135deg, white 50%, var(--dark) 50%); border: 2px solid var(--light-200); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; transition: var(--transition);">
+                                    <i class="fas fa-adjust" style="color: var(--text-secondary);"></i>
+                                </div>
+                                <span style="margin-top: 0.5rem; font-size: 0.875rem;">Auto</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="toggle-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                            <input type="checkbox" id="compactMode" style="display: none;">
+                            <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--light-200); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            <span>Compact Mode</span>
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="toggle-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                            <input type="checkbox" id="animations" checked style="display: none;">
+                            <span class="toggle-switch" style="position: relative; width: 44px; height: 24px; background: var(--primary); border-radius: var(--radius-full); transition: var(--transition);"></span>
+                            <span>Enable Animations</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About -->
+            <section class="settings-section card">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i> About</h3>
+                </div>
+                <div style="padding: 0 1.5rem 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: 64px; height: 64px; background: var(--gradient-1); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-wallet" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem;">FinanceFlow</h4>
+                            <p style="color: var(--text-muted); font-size: 0.875rem;">Version 1.0.0</p>
+                        </div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.6;">
+                        A modern personal finance tracker that syncs with Google Sheets. Track your income, expenses, and analyze your spending patterns with beautiful charts and reports.
+                    </p>
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--light-100);">
+                        <p style="font-size: 0.8125rem; color: var(--text-muted);">
+                            Made with <i class="fas fa-heart" style="color: var(--error);"></i> for better financial management by <strong>Sanheen Sethi</strong>
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="page-footer">
+        <a href="docs.html" target="_blank"><i class="fas fa-book"></i> Documentation</a>
+        <span>|</span>
+        <span>FinanceFlow v1.0.0</span>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>
