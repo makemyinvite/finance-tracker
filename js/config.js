@@ -9,7 +9,7 @@ const CONFIG = {
     VERSION: '1.0.0',
 
     // Google Apps Script Web App URL
-    DEFAULT_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyHQwJyQpQLZ9bQCLIPAMmWKMiaw1LXYZzqNMT6eiyY99u4yqvYtNCkz3WEV7ssFeoWAg/exec',
+    DEFAULT_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbxCyBNPUaJgUILaXBBU5cn-z4Aw6-aAF1UKns9bv6gkhIR_qWKCuNng-UyX-TfKaRdqgg/exec',
 
     // Storage Keys
     STORAGE_KEYS: {
