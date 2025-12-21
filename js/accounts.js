@@ -75,6 +75,14 @@ const Accounts = {
             this.toggleCreditCardFields();
         });
 
+        // Has Debit Card checkbox - show/hide debit card number field
+        document.getElementById('hasDebitCard')?.addEventListener('change', (e) => {
+            const debitCardNumberField = document.getElementById('debitCardNumberField');
+            if (debitCardNumberField) {
+                debitCardNumberField.style.display = e.target.checked ? 'block' : 'none';
+            }
+        });
+
         // Close modal
         document.getElementById('closeModal')?.addEventListener('click', () => {
             App.closeModal(document.getElementById('accountModal'));
@@ -163,7 +171,8 @@ const Accounts = {
         accounts.forEach(acc => {
             const card = document.createElement('div');
             card.className = `bank-card ${acc.color || 'gradient-1'} stagger-item`;
-            const debitCardBadge = acc.hasDebitCard ? '<span class="debit-card-badge"><i class="fas fa-credit-card"></i> Debit Card</span>' : '';
+            const debitCardNum = acc.debitCardNumber ? ` ****${acc.debitCardNumber}` : '';
+            const debitCardBadge = acc.hasDebitCard ? `<span class="debit-card-badge"><i class="fas fa-credit-card"></i> Debit Card${debitCardNum}</span>` : '';
             card.innerHTML = `
                 <div class="card-actions">
                     <button class="card-action-btn edit-btn" data-id="${acc.id}">
@@ -488,6 +497,12 @@ const Accounts = {
             // Bank account specific
             if (account.accountType === 'bank') {
                 form.elements['hasDebitCard'].checked = account.hasDebitCard || false;
+                form.elements['debitCardNumber'].value = account.debitCardNumber || '';
+                // Show/hide debit card number field
+                const debitCardNumberField = document.getElementById('debitCardNumberField');
+                if (debitCardNumberField) {
+                    debitCardNumberField.style.display = account.hasDebitCard ? 'block' : 'none';
+                }
             }
 
             if (account.accountType === 'credit') {
@@ -558,6 +573,9 @@ const Accounts = {
         // Add bank account specific fields
         if (account.accountType === 'bank') {
             account.hasDebitCard = document.getElementById('hasDebitCard')?.checked || false;
+            if (account.hasDebitCard) {
+                account.debitCardNumber = formData.get('debitCardNumber') || '';
+            }
         }
 
         // Add credit card specific fields

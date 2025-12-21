@@ -299,6 +299,8 @@ const SheetsAPI = {
             'rewardtype': 'rewardType',
             'wallettype': 'walletType',
             'minquarterlyspend': 'minSpendQuarterly',
+            'hasdebitcard': 'hasDebitCard',
+            'debitcardnumber': 'debitCardNumber',
             'createdat': 'createdAt',
             'updatedat': 'updatedAt',
             'transactiontype': 'type',
