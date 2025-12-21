@@ -2,6 +2,15 @@
    Accounts & Cards Page Styles
    ============================================ */
 
+/* Mobile overflow prevention */
+@media (max-width: 768px) {
+    .accounts-content,
+    .accounts-content * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
 /* Accounts Content */
 .accounts-content {
     padding: 2rem;
@@ -715,7 +724,7 @@
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
-        overflow: hidden;
+        overflow-x: hidden;
     }
 
     .tabs-header {
@@ -724,12 +733,18 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         box-sizing: border-box;
+        flex-wrap: nowrap;
+    }
+
+    .tab-btn {
+        flex-shrink: 0;
     }
 
     .tab-content {
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .account-stats {
