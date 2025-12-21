@@ -24,7 +24,7 @@ const Storage = {
     get(key, defaultValue = null) {
         try {
             const item = localStorage.getItem(key);
-            if (item === null) return defaultValue;
+            if (item === null || item === 'undefined') return defaultValue;
             return JSON.parse(item);
         } catch (e) {
             console.error(`Error reading from storage: ${key}`, e);

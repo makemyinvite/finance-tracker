@@ -86,7 +86,9 @@ const Auth = {
             if (result.success) {
                 // Save token
                 localStorage.setItem('financeflow_token', result.token);
-                localStorage.setItem('financeflow_user', JSON.stringify(result.user));
+                if (result.user) {
+                    localStorage.setItem('financeflow_user', JSON.stringify(result.user));
+                }
                 localStorage.removeItem('financeflow_demo_mode'); // Ensure demo mode is off
 
                 if (rememberMe) {

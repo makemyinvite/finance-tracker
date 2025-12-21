@@ -110,7 +110,15 @@ const App = {
      * Update user display in sidebar
      */
     updateUserDisplay() {
-        const user = JSON.parse(localStorage.getItem('financeflow_user') || '{}');
+        let user = {};
+        try {
+            const stored = localStorage.getItem('financeflow_user');
+            if (stored && stored !== 'undefined') {
+                user = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+        }
         const userNameEl = document.getElementById('userName');
         const userEmailEl = document.getElementById('userEmail');
 
