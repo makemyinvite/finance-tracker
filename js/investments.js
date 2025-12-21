@@ -138,9 +138,8 @@ const Investments = {
             createdAt: new Date().toISOString()
         };
 
-        this.saveInvestment(investment);
         this.closeModal('addFdModal');
-        App.showToast('Fixed Deposit added successfully!', 'success');
+        this.saveInvestment(investment);
     },
 
     /**
@@ -177,9 +176,8 @@ const Investments = {
             createdAt: new Date().toISOString()
         };
 
-        this.saveInvestment(investment);
         this.closeModal('addRdModal');
-        App.showToast('Recurring Deposit added successfully!', 'success');
+        this.saveInvestment(investment);
     },
 
     /**
@@ -213,9 +211,8 @@ const Investments = {
             createdAt: new Date().toISOString()
         };
 
-        this.saveInvestment(investment);
         this.closeModal('addSipModal');
-        App.showToast('SIP added successfully!', 'success');
+        this.saveInvestment(investment);
     },
 
     /**
@@ -250,28 +247,35 @@ const Investments = {
             createdAt: new Date().toISOString()
         };
 
-        this.saveInvestment(investment);
         this.closeModal('addPpfModal');
-        App.showToast('PPF Account added successfully!', 'success');
+        this.saveInvestment(investment);
     },
 
     /**
      * Save investment to storage
      */
-    saveInvestment(investment) {
-        let investments = Storage.get('financeflow_investments', []);
-        investments.push(investment);
-        Storage.set('financeflow_investments', investments);
+    async saveInvestment(investment) {
+        App.showLoader('Saving Investment', 'Please wait...');
 
-        // Sync to Google Sheets
-        if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
-            SheetsAPI.request('saveInvestment', { investment }).catch(err => {
-                console.error('Failed to sync investment to Google Sheets:', err);
-            });
+        try {
+            let investments = Storage.get('financeflow_investments', []);
+            investments.push(investment);
+            Storage.set('financeflow_investments', investments);
+
+            // Sync to Google Sheets
+            if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
+                await SheetsAPI.request('saveInvestment', { investment });
+            }
+
+            App.hideLoader();
+            App.showToast('Investment added successfully!', 'success');
+            this.loadStats();
+            this.loadInvestments();
+        } catch (error) {
+            console.error('Failed to save investment:', error);
+            App.hideLoader();
+            App.showToast('Failed to save investment', 'error');
         }
-
-        this.loadStats();
-        this.loadInvestments();
     },
 
     /**
@@ -428,15 +432,29 @@ const Investments = {
     /**
      * Delete investment
      */
-    deleteInvestment(invId) {
+    async deleteInvestment(invId) {
         if (confirm('Are you sure you want to delete this investment?')) {
-            let investments = Storage.get('financeflow_investments', []);
-            investments = investments.filter(i => i.id !== invId);
-            Storage.set('financeflow_investments', investments);
+            App.showLoader('Deleting Investment', 'Please wait...');
 
-            App.showToast('Investment deleted', 'success');
-            this.loadStats();
-            this.loadInvestments();
+            try {
+                let investments = Storage.get('financeflow_investments', []);
+                investments = investments.filter(i => i.id !== invId);
+                Storage.set('financeflow_investments', investments);
+
+                // Sync to Google Sheets
+                if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
+                    await SheetsAPI.request('deleteInvestment', { id: invId });
+                }
+
+                App.hideLoader();
+                App.showToast('Investment deleted', 'success');
+                this.loadStats();
+                this.loadInvestments();
+            } catch (error) {
+                console.error('Failed to delete investment:', error);
+                App.hideLoader();
+                App.showToast('Failed to delete investment', 'error');
+            }
         }
     },
 

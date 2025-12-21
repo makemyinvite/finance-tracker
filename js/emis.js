@@ -138,9 +138,10 @@ const EMIs = {
     /**
      * Save EMI (add or update)
      */
-    saveEmi(e) {
+    async saveEmi(e) {
         e.preventDefault();
 
+        const isUpdate = !!this.editingEmiId;
         const totalEmis = parseInt(document.getElementById('totalTenure').value) || 0;
         const paidEmis = parseInt(document.getElementById('paidEmis').value) || 0;
 
@@ -163,41 +164,58 @@ const EMIs = {
             updatedAt: new Date().toISOString()
         };
 
-        let emis = Storage.get('financeflow_emi_schedules', []);
-
-        if (this.editingEmiId) {
-            // Update existing
-            const index = emis.findIndex(e => e.id === this.editingEmiId);
-            if (index !== -1) {
-                emiData.paidEmis = emis[index].paidEmis || [];
-                emiData.createdAt = emis[index].createdAt;
-                emis[index] = emiData;
-            }
-            App.showToast('EMI updated successfully!', 'success');
-        } else {
-            // Add new
-            emis.push(emiData);
-            App.showToast('EMI added successfully!', 'success');
-        }
-
-        Storage.set('financeflow_emi_schedules', emis);
-
-        // Log the action
-        if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
-            const user = Storage.get('financeflow_user', {});
-            SheetsAPI.request('writeLog', {
-                level: 'INFO',
-                source: 'EMI',
-                message: this.editingEmiId ? 'EMI updated' : 'EMI added',
-                details: `${emiData.name} - ${this.formatCurrency(emiData.amount)}/month`,
-                user: user.name || user.email || 'Unknown'
-            }).catch(() => {});
-        }
-
         this.closeEmiModal();
-        this.loadStats();
-        this.loadEMIs();
-        this.loadUpcomingPayments();
+        App.showLoader(isUpdate ? 'Updating EMI' : 'Adding EMI', 'Please wait...');
+
+        try {
+            let emis = Storage.get('financeflow_emi_schedules', []);
+
+            if (isUpdate) {
+                // Update existing
+                const index = emis.findIndex(e => e.id === this.editingEmiId);
+                if (index !== -1) {
+                    emiData.paidEmis = emis[index].paidEmis || [];
+                    emiData.createdAt = emis[index].createdAt;
+                    emis[index] = emiData;
+                }
+            } else {
+                // Add new
+                emis.push(emiData);
+            }
+
+            Storage.set('financeflow_emi_schedules', emis);
+
+            // Sync with Google Sheets
+            if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
+                if (isUpdate) {
+                    await SheetsAPI.request('updateEmi', { id: this.editingEmiId, emi: emiData });
+                } else {
+                    await SheetsAPI.request('saveEmi', { emi: emiData });
+                }
+
+                // Log the action
+                const user = Storage.get('financeflow_user', {});
+                await SheetsAPI.request('writeLog', {
+                    level: 'INFO',
+                    source: 'EMI',
+                    message: isUpdate ? 'EMI updated' : 'EMI added',
+                    details: `${emiData.name} - ${this.formatCurrency(emiData.amount)}/month`,
+                    user: user.name || user.email || 'Unknown'
+                });
+            }
+
+            App.hideLoader();
+            App.showToast(isUpdate ? 'EMI updated successfully!' : 'EMI added successfully!', 'success');
+            this.loadStats();
+            this.loadEMIs();
+            this.loadUpcomingPayments();
+        } catch (error) {
+            console.error('Failed to save EMI:', error);
+            App.hideLoader();
+            App.showToast('Failed to save EMI', 'error');
+        }
+
+        this.editingEmiId = null;
     },
 
     /**
@@ -469,32 +487,46 @@ const EMIs = {
     /**
      * Delete EMI
      */
-    deleteEmi(emiId) {
+    async deleteEmi(emiId) {
         if (!confirm('Are you sure you want to delete this EMI? This action cannot be undone.')) {
             return;
         }
 
-        let emis = Storage.get('financeflow_emi_schedules', []);
-        const emi = emis.find(e => e.id === emiId);
-        emis = emis.filter(e => e.id !== emiId);
-        Storage.set('financeflow_emi_schedules', emis);
+        App.showLoader('Deleting EMI', 'Please wait...');
 
-        // Log the action
-        if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured() && emi) {
-            const user = Storage.get('financeflow_user', {});
-            SheetsAPI.request('writeLog', {
-                level: 'WARNING',
-                source: 'EMI',
-                message: 'EMI deleted',
-                details: `${emi.name} - ${this.formatCurrency(emi.amount)}/month`,
-                user: user.name || user.email || 'Unknown'
-            }).catch(() => {});
+        try {
+            let emis = Storage.get('financeflow_emi_schedules', []);
+            const emi = emis.find(e => e.id === emiId);
+            emis = emis.filter(e => e.id !== emiId);
+            Storage.set('financeflow_emi_schedules', emis);
+
+            // Sync with Google Sheets
+            if (typeof SheetsAPI !== 'undefined' && SheetsAPI.isConfigured()) {
+                await SheetsAPI.request('deleteEmi', { id: emiId });
+
+                // Log the action
+                if (emi) {
+                    const user = Storage.get('financeflow_user', {});
+                    await SheetsAPI.request('writeLog', {
+                        level: 'WARNING',
+                        source: 'EMI',
+                        message: 'EMI deleted',
+                        details: `${emi.name} - ${this.formatCurrency(emi.amount)}/month`,
+                        user: user.name || user.email || 'Unknown'
+                    });
+                }
+            }
+
+            App.hideLoader();
+            App.showToast('EMI deleted successfully', 'success');
+            this.loadStats();
+            this.loadEMIs();
+            this.loadUpcomingPayments();
+        } catch (error) {
+            console.error('Failed to delete EMI:', error);
+            App.hideLoader();
+            App.showToast('Failed to delete EMI', 'error');
         }
-
-        App.showToast('EMI deleted successfully', 'success');
-        this.loadStats();
-        this.loadEMIs();
-        this.loadUpcomingPayments();
     },
 
     /**

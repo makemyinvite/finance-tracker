@@ -241,31 +241,51 @@ const Categories = {
             type: this.selectedType
         };
 
-        // Save to local storage
-        Storage.addCategory(this.selectedType, category);
-
-        // Sync to Google Sheets
-        if (SheetsAPI.isConfigured()) {
-            try {
-                await SheetsAPI.addCategory(category);
-            } catch (error) {
-                console.error('Failed to sync category to Google Sheets:', error);
-            }
-        }
-
         App.closeModal(document.getElementById('categoryModal'));
-        App.showToast('Category added successfully', 'success');
-        this.loadCategories();
+        App.showLoader('Adding Category', 'Please wait...');
+
+        try {
+            // Save to local storage
+            Storage.addCategory(this.selectedType, category);
+
+            // Sync to Google Sheets
+            if (SheetsAPI.isConfigured()) {
+                await SheetsAPI.addCategory(category);
+            }
+
+            App.hideLoader();
+            App.showToast('Category added successfully', 'success');
+            this.loadCategories();
+        } catch (error) {
+            console.error('Failed to save category:', error);
+            App.hideLoader();
+            App.showToast('Failed to save category', 'error');
+        }
     },
 
     /**
      * Delete category
      */
-    deleteCategory(type, id) {
+    async deleteCategory(type, id) {
         if (confirm('Are you sure you want to delete this category?')) {
-            Storage.deleteCategory(type, id);
-            App.showToast('Category deleted', 'success');
-            this.loadCategories();
+            App.showLoader('Deleting Category', 'Please wait...');
+
+            try {
+                Storage.deleteCategory(type, id);
+
+                // Sync to Google Sheets
+                if (SheetsAPI.isConfigured()) {
+                    await SheetsAPI.deleteCategory(id);
+                }
+
+                App.hideLoader();
+                App.showToast('Category deleted', 'success');
+                this.loadCategories();
+            } catch (error) {
+                console.error('Failed to delete category:', error);
+                App.hideLoader();
+                App.showToast('Failed to delete category', 'error');
+            }
         }
     }
 };
