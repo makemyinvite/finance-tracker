@@ -440,6 +440,8 @@
             filteredLogs: [],
 
             async init() {
+                // Hide global loader immediately - logs page has its own loading state
+                App.hideLoader();
                 this.setupEventListeners();
                 await this.loadLogs();
             },
