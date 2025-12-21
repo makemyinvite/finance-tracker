@@ -764,7 +764,7 @@ function initializeSheet(sheet, name) {
       'ID', 'Account Type', 'Name', 'Bank Name', 'Account Number',
       'Current Balance', 'Credit Limit', 'Billing Cycle', 'Min Quarterly Spend',
       'Annual Fee', 'Reward Type', 'Wallet Type', 'Color', 'Notes',
-      'Created At', 'Updated At'
+      'Has Debit Card', 'Debit Card Number', 'Created At', 'Updated At'
     ],
     [CONFIG.SHEET_NAMES.TRANSACTIONS]: [
       'ID', 'Type', 'Amount', 'Date', 'Time', 'Description',
@@ -1103,6 +1103,8 @@ function addAccount(account, user = 'System') {
       account.walletType || '',
       account.color || 'gradient-1',
       account.notes || '',
+      account.hasDebitCard || false,
+      account.debitCardNumber || '',
       now,
       now
     ];
@@ -1166,7 +1168,9 @@ function updateAccount(id, account, user = 'System') {
           account.walletType || '',
           account.color || 'gradient-1',
           account.notes || '',
-          data[i][14], // Keep original created at
+          account.hasDebitCard || false,
+          account.debitCardNumber || '',
+          data[i][16], // Keep original created at (now at index 16)
           new Date().toISOString()
         ];
 
@@ -1373,6 +1377,56 @@ function setupSheets() {
   getOrCreateSheet(CONFIG.SHEET_NAMES.SETTINGS);
 
   SpreadsheetApp.getActiveSpreadsheet().toast('Sheets setup complete!', 'FinanceFlow', 5);
+}
+
+/**
+ * Migration: Add new columns to Accounts sheet
+ * Run this once to add 'Has Debit Card' and 'Debit Card Number' columns
+ */
+function migrateAccountsSheet() {
+  try {
+    const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.ACCOUNTS);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    // Check if new columns already exist
+    const hasDebitCardIndex = headers.indexOf('Has Debit Card');
+    const debitCardNumberIndex = headers.indexOf('Debit Card Number');
+
+    if (hasDebitCardIndex === -1 || debitCardNumberIndex === -1) {
+      // Find the position of 'Created At' column
+      const createdAtIndex = headers.indexOf('Created At');
+
+      if (createdAtIndex === -1) {
+        SpreadsheetApp.getActiveSpreadsheet().toast('Error: Created At column not found', 'Migration Error', 5);
+        return { success: false, error: 'Created At column not found' };
+      }
+
+      // Insert 2 new columns before 'Created At'
+      sheet.insertColumnsBefore(createdAtIndex + 1, 2);
+
+      // Set new column headers
+      sheet.getRange(1, createdAtIndex + 1).setValue('Has Debit Card');
+      sheet.getRange(1, createdAtIndex + 2).setValue('Debit Card Number');
+
+      // Set default values for existing rows (false and empty)
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        // Set 'Has Debit Card' to FALSE for all existing accounts
+        sheet.getRange(2, createdAtIndex + 1, lastRow - 1, 1).setValue(false);
+        // Set 'Debit Card Number' to empty for all existing accounts
+        sheet.getRange(2, createdAtIndex + 2, lastRow - 1, 1).setValue('');
+      }
+
+      SpreadsheetApp.getActiveSpreadsheet().toast('Migration complete! Added Has Debit Card and Debit Card Number columns.', 'Migration Success', 5);
+      return { success: true, message: 'Migration completed successfully' };
+    } else {
+      SpreadsheetApp.getActiveSpreadsheet().toast('Columns already exist. No migration needed.', 'Migration', 5);
+      return { success: true, message: 'Columns already exist' };
+    }
+  } catch (error) {
+    SpreadsheetApp.getActiveSpreadsheet().toast('Migration failed: ' + error.message, 'Migration Error', 5);
+    return { success: false, error: error.message };
+  }
 }
 
 
