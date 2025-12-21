@@ -282,6 +282,41 @@ const SheetsAPI = {
     // ================== SYNC ==================
 
     /**
+     * Normalize object keys from lowercase to camelCase
+     */
+    normalizeKeys(obj) {
+        if (!obj || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) return obj.map(item => this.normalizeKeys(item));
+
+        const keyMap = {
+            'accounttype': 'accountType',
+            'bankname': 'bankName',
+            'accountnumber': 'accountNumber',
+            'currentbalance': 'currentBalance',
+            'creditlimit': 'creditLimit',
+            'billingcycle': 'billingCycle',
+            'annualfee': 'annualFee',
+            'rewardtype': 'rewardType',
+            'wallettype': 'walletType',
+            'minquarterlyspend': 'minSpendQuarterly',
+            'createdat': 'createdAt',
+            'updatedat': 'updatedAt',
+            'transactiontype': 'type',
+            'paymentmethod': 'paymentMethod',
+            'categoryid': 'category',
+            'accountid': 'account',
+            'toaccountid': 'toAccount'
+        };
+
+        const normalized = {};
+        for (const [key, value] of Object.entries(obj)) {
+            const newKey = keyMap[key.toLowerCase()] || key;
+            normalized[newKey] = this.normalizeKeys(value);
+        }
+        return normalized;
+    },
+
+    /**
      * Full sync - pull data from sheets
      */
     async syncFromSheets() {
@@ -289,10 +324,19 @@ const SheetsAPI = {
             const result = await this.request('syncAll');
 
             if (result.success) {
-                // Update local storage with synced data
-                if (result.accounts) Storage.saveAccounts(result.accounts);
-                if (result.transactions) Storage.saveTransactions(result.transactions);
-                if (result.categories) Storage.saveCategories(result.categories);
+                // Normalize keys and update local storage with synced data
+                if (result.accounts) {
+                    const normalizedAccounts = this.normalizeKeys(result.accounts);
+                    Storage.saveAccounts(normalizedAccounts);
+                }
+                if (result.transactions) {
+                    const normalizedTransactions = this.normalizeKeys(result.transactions);
+                    Storage.saveTransactions(normalizedTransactions);
+                }
+                if (result.categories) {
+                    const normalizedCategories = this.normalizeKeys(result.categories);
+                    Storage.saveCategories(normalizedCategories);
+                }
 
                 return { success: true, message: 'Sync completed successfully' };
             }
