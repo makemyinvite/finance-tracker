@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate PWA Icons</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; background: #1e293b; color: white; }
+        h1 { color: #6366f1; }
+        .icons { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+        .icon-item { text-align: center; }
+        canvas { border: 1px solid #334155; border-radius: 8px; }
+        button { background: #6366f1; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 2rem; }
+        button:hover { background: #4f46e5; }
+        .instructions { background: #334155; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>FinanceFlow PWA Icon Generator</h1>
+    <p>Click the button below to download all icons for the PWA.</p>
+
+    <div class="instructions">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Click "Generate & Download All Icons"</li>
+            <li>Save each downloaded file to the <code>icons/</code> folder</li>
+            <li>Rename files as needed (icon-72x72.png, icon-96x96.png, etc.)</li>
+        </ol>
+    </div>
+
+    <button onclick="generateAllIcons()">Generate & Download All Icons</button>
+
+    <div class="icons" id="iconsContainer"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+
+        function drawIcon(ctx, size) {
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#6366f1');
+            gradient.addColorStop(1, '#4f46e5');
+
+            // Draw rounded rectangle background
+            const radius = size * 0.15;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Draw wallet icon
+            const scale = size / 512;
+            ctx.save();
+            ctx.translate(size * 0.2, size * 0.25);
+            ctx.scale(scale * 1.2, scale * 1.2);
+
+            // Wallet body
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.roundRect(20, 60, 220, 150, 20);
+            ctx.fill();
+
+            // Wallet flap (lighter)
+            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            ctx.beginPath();
+            ctx.moveTo(20, 100);
+            ctx.lineTo(20, 80);
+            ctx.quadraticCurveTo(20, 60, 40, 60);
+            ctx.lineTo(200, 60);
+            ctx.quadraticCurveTo(220, 60, 230, 80);
+            ctx.lineTo(240, 100);
+            ctx.quadraticCurveTo(250, 120, 230, 130);
+            ctx.lineTo(30, 130);
+            ctx.quadraticCurveTo(10, 130, 20, 100);
+            ctx.fill();
+
+            // Card slot
+            ctx.fillStyle = '#6366f1';
+            ctx.beginPath();
+            ctx.roundRect(160, 110, 60, 50, 8);
+            ctx.fill();
+
+            // Coin
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(190, 135, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Dollar sign
+            ctx.fillStyle = '#92400e';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', 190, 136);
+
+            ctx.restore();
+        }
+
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            drawIcon(ctx, size);
+            return canvas;
+        }
+
+        function downloadIcon(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function generateAllIcons() {
+            const container = document.getElementById('iconsContainer');
+            container.innerHTML = '';
+
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const canvas = generateIcon(size);
+                    const filename = `icon-${size}x${size}.png`;
+
+                    const div = document.createElement('div');
+                    div.className = 'icon-item';
+                    div.innerHTML = `<p>${size}x${size}</p>`;
+                    div.appendChild(canvas);
+                    container.appendChild(div);
+
+                    downloadIcon(canvas, filename);
+                }, index * 500);
+            });
+
+            // Generate shortcut icons
+            setTimeout(() => {
+                generateShortcutIcon('shortcut-add.png', '+', '#22c55e');
+                generateShortcutIcon('shortcut-accounts.png', 'A', '#3b82f6');
+                generateShortcutIcon('shortcut-reports.png', 'R', '#f59e0b');
+            }, sizes.length * 500 + 500);
+        }
+
+        function generateShortcutIcon(filename, letter, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 96;
+            canvas.height = 96;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 96, 96, 15);
+            ctx.fill();
+
+            // Letter
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(letter, 48, 52);
+
+            downloadIcon(canvas, filename);
+        }
+
+        // Auto-generate on load for preview
+        window.onload = () => {
+            const container = document.getElementById('iconsContainer');
+            sizes.forEach(size => {
+                const canvas = generateIcon(size);
+                const div = document.createElement('div');
+                div.className = 'icon-item';
+                div.innerHTML = `<p>${size}x${size}</p>`;
+                div.appendChild(canvas);
+                container.appendChild(div);
+            });
+        };
+    </script>
+</body>
+</html>

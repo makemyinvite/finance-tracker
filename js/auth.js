@@ -10,6 +10,9 @@ const Auth = {
      * Initialize auth page
      */
     init() {
+        // Register service worker for PWA
+        this.registerServiceWorker();
+
         // Check if already logged in
         const token = localStorage.getItem('financeflow_token');
         if (token) {
@@ -17,6 +20,22 @@ const Auth = {
         }
 
         this.setupEventListeners();
+    },
+
+    /**
+     * Register Service Worker for PWA functionality
+     */
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                });
+                console.log('[PWA] Service Worker registered:', registration.scope);
+            } catch (error) {
+                console.error('[PWA] Service Worker registration failed:', error);
+            }
+        }
     },
 
     /**

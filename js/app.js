@@ -8,6 +8,9 @@ const App = {
      * Initialize the application
      */
     init() {
+        // Register service worker for PWA
+        this.registerServiceWorker();
+
         // Apply saved theme immediately
         this.applyTheme();
 
@@ -23,6 +26,86 @@ const App = {
         this.setupLogout();
         this.showDemoModeBanner();
         console.log('FinanceFlow initialized');
+    },
+
+    /**
+     * Register Service Worker for PWA functionality
+     */
+    async registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                });
+
+                console.log('[PWA] Service Worker registered:', registration.scope);
+
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('[PWA] New service worker installing...');
+
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // New content available, show refresh prompt
+                            this.showUpdateAvailable(registration);
+                        }
+                    });
+                });
+
+                // Handle controller change (when SW activates)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('[PWA] Controller changed');
+                });
+
+            } catch (error) {
+                console.error('[PWA] Service Worker registration failed:', error);
+            }
+        }
+    },
+
+    /**
+     * Show update available notification
+     */
+    showUpdateAvailable(registration) {
+        const updateBanner = document.createElement('div');
+        updateBanner.id = 'updateBanner';
+        updateBanner.style.cssText = `
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 9999;
+            font-size: 0.875rem;
+        `;
+        updateBanner.innerHTML = `
+            <span><i class="fas fa-sync-alt"></i> New version available!</span>
+            <button onclick="App.applyUpdate()" style="background: white; color: #4f46e5; border: none; padding: 0.375rem 0.75rem; border-radius: 0.25rem; cursor: pointer; font-weight: 600;">
+                Update Now
+            </button>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        document.body.appendChild(updateBanner);
+    },
+
+    /**
+     * Apply service worker update
+     */
+    applyUpdate() {
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        }
+        window.location.reload();
     },
 
     /**
