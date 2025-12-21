@@ -15,8 +15,9 @@ const Transactions = {
      * Initialize transactions page
      */
     async init() {
-        // Sync from API first for non-demo users
+        // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
+            App.showLoader('Loading Transactions', 'Syncing your data...');
             await this.syncFromAPI();
         }
 
@@ -26,6 +27,8 @@ const Transactions = {
         this.setDefaultDates();
         this.loadTransactions();
         this.loadPendingTransactions();
+
+        App.hideLoader();
     },
 
     /**

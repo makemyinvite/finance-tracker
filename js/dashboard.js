@@ -10,8 +10,9 @@ const Dashboard = {
      * Initialize dashboard
      */
     async init() {
-        // Sync from API first for non-demo users
+        // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
+            App.showLoader('Loading Dashboard', 'Syncing your data...');
             await this.syncFromAPI();
         }
 
@@ -21,6 +22,9 @@ const Dashboard = {
         this.initCharts();
         this.setupQuickAddForm();
         this.loadPendingTransactions();
+
+        // Hide loader after everything is loaded
+        App.hideLoader();
     },
 
     /**

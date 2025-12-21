@@ -12,8 +12,9 @@ const Reports = {
      * Initialize reports page
      */
     async init() {
-        // Sync from API first for non-demo users
+        // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
+            App.showLoader('Loading Reports', 'Syncing your data...');
             await this.syncFromAPI();
         }
 
@@ -23,6 +24,8 @@ const Reports = {
         this.initAllCharts();
         this.loadCategoryBreakdown();
         this.loadTopExpenses();
+
+        App.hideLoader();
     },
 
     /**

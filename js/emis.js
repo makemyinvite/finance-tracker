@@ -10,8 +10,9 @@ const EMIs = {
      * Initialize EMI page
      */
     async init() {
-        // Sync from API first for non-demo users
+        // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
+            App.showLoader('Loading EMIs', 'Syncing your data...');
             await this.syncFromAPI();
         }
 
@@ -21,6 +22,8 @@ const EMIs = {
         this.loadAccountsDropdown();
         this.loadAutomationSettings();
         this.setupEventListeners();
+
+        App.hideLoader();
     },
 
     /**

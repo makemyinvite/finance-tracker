@@ -505,6 +505,30 @@ const App = {
     },
 
     /**
+     * Show global loader
+     */
+    showLoader(text = 'Loading...', subtext = 'Please wait') {
+        const loader = document.getElementById('globalLoader');
+        if (loader) {
+            const textEl = loader.querySelector('.loader-text');
+            const subtextEl = loader.querySelector('.loader-subtext');
+            if (textEl) textEl.textContent = text;
+            if (subtextEl) subtextEl.textContent = subtext;
+            loader.classList.remove('hidden');
+        }
+    },
+
+    /**
+     * Hide global loader
+     */
+    hideLoader() {
+        const loader = document.getElementById('globalLoader');
+        if (loader) {
+            loader.classList.add('hidden');
+        }
+    },
+
+    /**
      * Format currency
      */
     formatCurrency(amount, showSymbol = true) {

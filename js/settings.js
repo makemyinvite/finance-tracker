@@ -8,8 +8,9 @@ const Settings = {
      * Initialize settings page
      */
     async init() {
-        // Sync from API first for non-demo users
+        // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
+            App.showLoader('Loading Settings', 'Syncing your data...');
             await this.syncFromAPI();
         }
 
@@ -17,6 +18,8 @@ const Settings = {
         this.loadAutomationSettings();
         this.setupEventListeners();
         this.setupAutomationListeners();
+
+        App.hideLoader();
     },
 
     /**
