@@ -309,9 +309,15 @@
 
                         <div class="input-group">
                             <label>Loan Tenure</label>
-                            <div class="input-with-unit">
-                                <input type="number" id="reverseEmiTenureInput" value="15" min="1" max="30">
-                                <span class="unit">Years</span>
+                            <div class="tenure-input-group" style="display: flex; gap: 0.5rem;">
+                                <div class="input-with-unit" style="flex: 1;">
+                                    <input type="number" id="reverseEmiTenureInput" value="15" min="1">
+                                </div>
+                                <select id="reverseEmiTenureUnit" class="tenure-unit-select" style="width: 100px; padding: 0.75rem; border: 2px solid var(--light-200); border-radius: var(--radius); font-size: 0.875rem;">
+                                    <option value="years">Years</option>
+                                    <option value="months">Months</option>
+                                    <option value="days">Days</option>
+                                </select>
                             </div>
                         </div>
                     </div>

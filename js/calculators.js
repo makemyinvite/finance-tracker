@@ -203,6 +203,9 @@ const Calculators = {
                 input.addEventListener('input', () => this.calculateReverseEMI());
             }
         });
+
+        // Reverse EMI tenure unit dropdown
+        document.getElementById('reverseEmiTenureUnit')?.addEventListener('change', () => this.calculateReverseEMI());
     },
 
     /**
@@ -462,11 +465,20 @@ const Calculators = {
     calculateReverseEMI() {
         const principal = parseFloat(document.getElementById('reverseEmiPrincipalInput')?.value) || 0;
         const emi = parseFloat(document.getElementById('reverseEmiAmountInput')?.value) || 0;
-        const tenureYears = parseFloat(document.getElementById('reverseEmiTenureInput')?.value) || 0;
+        const tenureValue = parseFloat(document.getElementById('reverseEmiTenureInput')?.value) || 0;
+        const tenureUnit = document.getElementById('reverseEmiTenureUnit')?.value || 'years';
 
-        if (principal <= 0 || emi <= 0 || tenureYears <= 0) return;
+        if (principal <= 0 || emi <= 0 || tenureValue <= 0) return;
 
-        const tenureMonths = tenureYears * 12;
+        // Convert tenure to months based on unit
+        let tenureMonths;
+        if (tenureUnit === 'years') {
+            tenureMonths = tenureValue * 12;
+        } else if (tenureUnit === 'months') {
+            tenureMonths = tenureValue;
+        } else if (tenureUnit === 'days') {
+            tenureMonths = tenureValue / 30; // Approximate
+        }
 
         // Check if EMI is valid (must be greater than principal/months)
         const minEMI = principal / tenureMonths;
