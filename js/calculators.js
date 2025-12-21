@@ -10,6 +10,9 @@ const Calculators = {
      * Initialize calculators
      */
     init() {
+        // Hide loader immediately - calculators don't need data sync
+        App.hideLoader();
+
         this.setupEventListeners();
         this.calculateEMI();
         this.calculateReverseEMI();
