@@ -147,7 +147,6 @@ const Accounts = {
 
         this.renderBankAccounts(accounts.filter(a => a.accountType === 'bank'));
         this.renderCreditCards(accounts.filter(a => a.accountType === 'credit'));
-        this.renderDebitCards(accounts.filter(a => a.accountType === 'debit'));
         this.renderWallets(accounts.filter(a => a.accountType === 'wallet'));
     },
 
@@ -164,6 +163,7 @@ const Accounts = {
         accounts.forEach(acc => {
             const card = document.createElement('div');
             card.className = `bank-card ${acc.color || 'gradient-1'} stagger-item`;
+            const debitCardBadge = acc.hasDebitCard ? '<span class="debit-card-badge"><i class="fas fa-credit-card"></i> Debit Card</span>' : '';
             card.innerHTML = `
                 <div class="card-actions">
                     <button class="card-action-btn edit-btn" data-id="${acc.id}">
@@ -178,6 +178,7 @@ const Accounts = {
                 </div>
                 <div class="card-name">${acc.name}</div>
                 <div class="card-number">****${acc.accountNumber || '0000'}</div>
+                ${debitCardBadge}
                 <div class="card-balance-section">
                     <div class="card-balance-label">Available Balance</div>
                     <div class="card-balance">${App.formatCurrency(acc.currentBalance)}</div>
@@ -267,46 +268,6 @@ const Accounts = {
                 setTimeout(() => item.classList.add('animated'), i * 100);
             });
         }, 100);
-    },
-
-    /**
-     * Render debit cards
-     */
-    renderDebitCards(accounts) {
-        const container = document.getElementById('debitCardsList');
-        if (!container) return;
-
-        const placeholder = container.querySelector('.add-card-placeholder');
-        container.innerHTML = '';
-
-        accounts.forEach(acc => {
-            const card = document.createElement('div');
-            card.className = `bank-card ${acc.color || 'gradient-4'} stagger-item`;
-            card.innerHTML = `
-                <div class="card-actions">
-                    <button class="card-action-btn edit-btn" data-id="${acc.id}">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="card-action-btn delete-btn" data-id="${acc.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                <div class="card-chip"></div>
-                <div class="card-name">${acc.name}</div>
-                <div class="card-number">****${acc.accountNumber || '0000'}</div>
-                <div class="card-balance-section">
-                    <div class="card-balance-label">Linked Account Balance</div>
-                    <div class="card-balance">${App.formatCurrency(acc.currentBalance)}</div>
-                </div>
-            `;
-            container.appendChild(card);
-
-            // Add event listeners
-            card.querySelector('.edit-btn')?.addEventListener('click', () => this.editAccount(acc.id));
-            card.querySelector('.delete-btn')?.addEventListener('click', () => this.deleteAccount(acc.id));
-        });
-
-        if (placeholder) container.appendChild(placeholder);
     },
 
     /**
@@ -470,11 +431,13 @@ const Accounts = {
     handleAccountTypeChange(type) {
         const creditFields = document.getElementById('creditCardFields');
         const walletFields = document.getElementById('walletFields');
+        const hasDebitCardField = document.getElementById('hasDebitCardField');
         const balanceLabel = document.querySelector('label[for="currentBalance"]');
         const balanceInput = document.getElementById('currentBalance');
 
         if (creditFields) creditFields.style.display = type === 'credit' ? 'block' : 'none';
         if (walletFields) walletFields.style.display = type === 'wallet' ? 'block' : 'none';
+        if (hasDebitCardField) hasDebitCardField.style.display = type === 'bank' ? 'block' : 'none';
 
         // Update balance label based on account type
         if (balanceLabel) {
@@ -521,6 +484,11 @@ const Accounts = {
             form.elements['bankName'].value = account.bankName;
             form.elements['accountNumber'].value = account.accountNumber;
             form.elements['currentBalance'].value = account.currentBalance;
+
+            // Bank account specific
+            if (account.accountType === 'bank') {
+                form.elements['hasDebitCard'].checked = account.hasDebitCard || false;
+            }
 
             if (account.accountType === 'credit') {
                 form.elements['creditLimit'].value = account.creditLimit;
@@ -586,6 +554,11 @@ const Accounts = {
             color: formData.get('accountColor'),
             notes: formData.get('notes')
         };
+
+        // Add bank account specific fields
+        if (account.accountType === 'bank') {
+            account.hasDebitCard = document.getElementById('hasDebitCard')?.checked || false;
+        }
 
         // Add credit card specific fields
         if (account.accountType === 'credit') {
