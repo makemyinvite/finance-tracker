@@ -325,11 +325,12 @@ const SheetsAPI = {
 
             if (result.success) {
                 // Normalize keys and update local storage with synced data
-                if (result.accounts) {
+                if (result.accounts && result.accounts.length > 0) {
                     const normalizedAccounts = this.normalizeKeys(result.accounts);
+                    console.log('Normalized accounts:', normalizedAccounts);
                     Storage.saveAccounts(normalizedAccounts);
                 }
-                if (result.transactions) {
+                if (result.transactions && result.transactions.length > 0) {
                     const normalizedTransactions = this.normalizeKeys(result.transactions);
                     Storage.saveTransactions(normalizedTransactions);
                 }
