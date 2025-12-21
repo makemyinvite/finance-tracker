@@ -1735,6 +1735,7 @@ h4 { font-size: 1.125rem; }
 @media (max-width: 640px) {
     .top-header {
         flex-wrap: wrap;
+        padding-left: 4.5rem;
     }
 
     .header-left {
