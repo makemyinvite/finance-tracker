@@ -26,7 +26,7 @@ const SheetsAPI = {
      * Get auth token
      */
     getToken() {
-        return Storage.get('financeflow_auth_token', null);
+        return localStorage.getItem('financeflow_token');
     },
 
     /**
