@@ -539,9 +539,10 @@ const Accounts = {
     /**
      * Confirm delete
      */
-    confirmDelete() {
+    async confirmDelete() {
         if (this.deleteAccountId) {
-            Storage.deleteAccount(this.deleteAccountId);
+            const accountId = this.deleteAccountId;
+            Storage.deleteAccount(accountId);
             this.deleteAccountId = null;
             App.closeModal(document.getElementById('deleteModal'));
             App.showToast('Account deleted successfully', 'success');
@@ -549,6 +550,15 @@ const Accounts = {
             this.loadAccounts();
             this.loadRequirements();
             App.loadAccounts(); // Refresh dropdowns
+
+            // Sync deletion with Google Sheets
+            if (SheetsAPI.isConfigured()) {
+                try {
+                    await SheetsAPI.deleteAccount(accountId);
+                } catch (error) {
+                    console.error('Failed to sync account deletion:', error);
+                }
+            }
         }
     },
 

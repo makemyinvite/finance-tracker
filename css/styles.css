@@ -1707,6 +1707,7 @@ h4 { font-size: 1.125rem; }
 
     .top-header {
         padding: 1rem;
+        padding-left: 4.5rem;
     }
 
     .header-left .page-title {
