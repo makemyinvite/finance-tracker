@@ -82,6 +82,8 @@
     --sidebar-collapsed: 70px;
     --header-height: 70px;
     --mobile-nav-height: 70px;
+    --mobile-menu-size: 44px;
+    --mobile-menu-left: 1rem;
 }
 
 /* Dark Theme */
@@ -707,10 +709,10 @@ h4 { font-size: 1.125rem; }
     display: none;
     position: fixed;
     top: 1rem;
-    left: 1rem;
+    left: var(--mobile-menu-left);
     z-index: 1002;
-    width: 44px;
-    height: 44px;
+    width: var(--mobile-menu-size);
+    height: var(--mobile-menu-size);
     background: var(--bg-card);
     border: none;
     border-radius: var(--radius);
@@ -782,7 +784,7 @@ h4 { font-size: 1.125rem; }
     }
 
     .top-header {
-        padding-left: 4.5rem;
+        padding-left: calc(var(--mobile-menu-left) + var(--mobile-menu-size) + 0.75rem);
     }
 
     /* Settings page mobile */
@@ -1707,7 +1709,7 @@ h4 { font-size: 1.125rem; }
 
     .top-header {
         padding: 1rem;
-        padding-left: 4.5rem;
+        padding-left: calc(var(--mobile-menu-left) + var(--mobile-menu-size) + 0.75rem);
     }
 
     .header-left .page-title {
@@ -1735,7 +1737,7 @@ h4 { font-size: 1.125rem; }
 @media (max-width: 640px) {
     .top-header {
         flex-wrap: wrap;
-        padding-left: 4.5rem;
+        padding-left: calc(var(--mobile-menu-left) + var(--mobile-menu-size) + 0.75rem);
     }
 
     .header-left {
