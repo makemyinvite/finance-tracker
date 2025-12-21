@@ -782,10 +782,17 @@ h4 { font-size: 1.125rem; }
     .main-content {
         margin-left: 0;
         padding-top: 70px;
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     .top-header {
         padding-left: calc(var(--mobile-menu-left) + var(--mobile-menu-size) + 0.75rem);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     /* Settings page mobile */

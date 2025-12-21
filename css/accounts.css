@@ -705,23 +705,38 @@
 @media (max-width: 768px) {
     .accounts-content {
         padding: 1rem;
+        width: 100%;
         max-width: 100%;
+        box-sizing: border-box;
         overflow-x: hidden;
     }
 
     .tabs-container {
+        width: 100%;
         max-width: 100%;
-        overflow-x: hidden;
+        box-sizing: border-box;
+        overflow: hidden;
     }
 
     .tabs-header {
+        width: 100%;
+        max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
+    }
+
+    .tab-content {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .account-stats {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
+        width: 100%;
+        max-width: 100%;
     }
 
     .stat-card {
@@ -747,6 +762,18 @@
     .cards-grid,
     .wallets-grid {
         grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .wallet-card,
+    .bank-card,
+    .credit-card,
+    .add-card-placeholder {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .tabs-header {
