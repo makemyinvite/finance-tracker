@@ -44,12 +44,22 @@ const Animations = {
             el.style.visibility = 'visible';
         });
 
-        // Ensure main sections are visible
-        document.querySelectorAll('.sidebar, .top-header, .main-content, .dashboard-content').forEach(el => {
+        // Ensure main sections are visible (except sidebar on mobile - let CSS handle it)
+        document.querySelectorAll('.top-header, .main-content, .dashboard-content').forEach(el => {
             el.style.opacity = '1';
             el.style.transform = 'none';
             el.style.visibility = 'visible';
         });
+
+        // Handle sidebar separately - don't override transform on mobile
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.style.opacity = '1';
+            sidebar.style.visibility = 'visible';
+            if (window.innerWidth > 768) {
+                sidebar.style.transform = 'none';
+            }
+        }
     },
 
     /**
@@ -62,9 +72,9 @@ const Animations = {
             // Add loaded class to body
             document.body.classList.add('page-loaded');
 
-            // Animate sidebar
+            // Animate sidebar (only on desktop)
             const sidebar = document.querySelector('.sidebar');
-            if (sidebar) {
+            if (sidebar && window.innerWidth > 768) {
                 gsap.from(sidebar, {
                     x: -100,
                     opacity: 0,
@@ -72,7 +82,7 @@ const Animations = {
                     ease: 'power2.out',
                     onComplete: () => {
                         sidebar.style.opacity = '1';
-                        sidebar.style.transform = 'none';
+                        // Don't set transform to none - let CSS handle it
                     }
                 });
             }

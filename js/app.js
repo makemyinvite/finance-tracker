@@ -232,14 +232,21 @@ const App = {
     },
 
     /**
-     * Toggle sidebar (desktop)
+     * Toggle sidebar (desktop) or close mobile menu
      */
     toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        if (!sidebar) return;
+
+        // On mobile, close the mobile menu instead of collapsing
+        if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+            this.closeMobileMenu();
+            return;
         }
+
+        // Desktop: toggle collapsed state
+        sidebar.classList.toggle('collapsed');
+        localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed'));
     },
 
     /**
