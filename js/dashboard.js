@@ -9,13 +9,36 @@ const Dashboard = {
     /**
      * Initialize dashboard
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.loadSummary();
         this.loadRecentTransactions();
         this.loadAccounts();
         this.initCharts();
         this.setupQuickAddForm();
         this.loadPendingTransactions();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            SheetsAPI.updateSyncStatus('syncing');
+            const result = await SheetsAPI.syncFromSheets();
+            if (result.success) {
+                SheetsAPI.updateSyncStatus('synced');
+            } else {
+                SheetsAPI.updateSyncStatus('error');
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+            SheetsAPI.updateSyncStatus('error');
+        }
     },
 
     /**

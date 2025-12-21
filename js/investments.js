@@ -7,11 +7,27 @@ const Investments = {
     /**
      * Initialize investments page
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.loadStats();
         this.loadInvestments();
         this.loadEmailSettings();
         this.setupEventListeners();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            await SheetsAPI.syncFromSheets();
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
     },
 
     /**

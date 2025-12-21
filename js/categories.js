@@ -10,9 +10,25 @@ const Categories = {
     /**
      * Initialize categories page
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.setupEventListeners();
         this.loadCategories();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            await SheetsAPI.syncFromSheets();
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
     },
 
     /**

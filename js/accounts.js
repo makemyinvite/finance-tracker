@@ -10,12 +10,31 @@ const Accounts = {
     /**
      * Initialize accounts page
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.loadStats();
         this.loadAccounts();
         this.loadRequirements();
         this.setupEventListeners();
         this.updateQuarter();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            const result = await SheetsAPI.syncFromSheets();
+            if (!result.success) {
+                console.error('Sync failed:', result.message);
+            }
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
     },
 
     /**

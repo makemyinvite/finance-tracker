@@ -9,13 +9,29 @@ const EMIs = {
     /**
      * Initialize EMI page
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.loadStats();
         this.loadEMIs();
         this.loadUpcomingPayments();
         this.loadAccountsDropdown();
         this.loadAutomationSettings();
         this.setupEventListeners();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            await SheetsAPI.syncFromSheets();
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
     },
 
     /**

@@ -14,13 +14,29 @@ const Transactions = {
     /**
      * Initialize transactions page
      */
-    init() {
+    async init() {
+        // Sync from API first for non-demo users
+        if (!SheetsAPI.isDemoMode()) {
+            await this.syncFromAPI();
+        }
+
         this.setupEventListeners();
         this.loadCategories();
         this.loadAccounts();
         this.setDefaultDates();
         this.loadTransactions();
         this.loadPendingTransactions();
+    },
+
+    /**
+     * Sync data from API
+     */
+    async syncFromAPI() {
+        try {
+            await SheetsAPI.syncFromSheets();
+        } catch (error) {
+            console.error('Sync error:', error);
+        }
     },
 
     /**
