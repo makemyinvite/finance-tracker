@@ -542,23 +542,30 @@ const Accounts = {
     async confirmDelete() {
         if (this.deleteAccountId) {
             const accountId = this.deleteAccountId;
-            Storage.deleteAccount(accountId);
-            this.deleteAccountId = null;
             App.closeModal(document.getElementById('deleteModal'));
-            App.showToast('Account deleted successfully', 'success');
-            this.loadStats();
-            this.loadAccounts();
-            this.loadRequirements();
-            App.loadAccounts(); // Refresh dropdowns
+            App.showLoader('Deleting Account', 'Please wait...');
 
-            // Sync deletion with Google Sheets
-            if (SheetsAPI.isConfigured()) {
-                try {
+            try {
+                Storage.deleteAccount(accountId);
+
+                // Sync deletion with Google Sheets
+                if (SheetsAPI.isConfigured()) {
                     await SheetsAPI.deleteAccount(accountId);
-                } catch (error) {
-                    console.error('Failed to sync account deletion:', error);
                 }
+
+                App.hideLoader();
+                App.showToast('Account deleted successfully', 'success');
+                this.loadStats();
+                this.loadAccounts();
+                this.loadRequirements();
+                App.loadAccounts(); // Refresh dropdowns
+            } catch (error) {
+                console.error('Failed to delete account:', error);
+                App.hideLoader();
+                App.showToast('Failed to delete account', 'error');
             }
+
+            this.deleteAccountId = null;
         }
     },
 
@@ -569,6 +576,7 @@ const Accounts = {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+        const isUpdate = !!this.currentAccountId;
 
         const account = {
             accountType: formData.get('accountType'),
@@ -602,35 +610,40 @@ const Accounts = {
             account.walletType = formData.get('walletType');
         }
 
-        // Save
-        if (this.currentAccountId) {
-            Storage.updateAccount(this.currentAccountId, account);
-            App.showToast('Account updated successfully', 'success');
-        } else {
-            Storage.addAccount(account);
-            App.showToast('Account added successfully', 'success');
-        }
+        // Close modal and show loader
+        App.closeModal(document.getElementById('accountModal'));
+        App.showLoader(isUpdate ? 'Updating Account' : 'Adding Account', 'Please wait...');
 
-        // Sync with Google Sheets
-        if (SheetsAPI.isConfigured()) {
-            try {
-                if (this.currentAccountId) {
+        try {
+            // Save locally
+            if (isUpdate) {
+                Storage.updateAccount(this.currentAccountId, account);
+            } else {
+                Storage.addAccount(account);
+            }
+
+            // Sync with Google Sheets
+            if (SheetsAPI.isConfigured()) {
+                if (isUpdate) {
                     await SheetsAPI.updateAccount(this.currentAccountId, account);
                 } else {
                     await SheetsAPI.addAccount(account);
                 }
-            } catch (error) {
-                console.error('Failed to sync account:', error);
             }
+
+            App.hideLoader();
+            App.showToast(isUpdate ? 'Account updated successfully' : 'Account added successfully', 'success');
+            this.loadStats();
+            this.loadAccounts();
+            this.loadRequirements();
+            App.loadAccounts(); // Refresh dropdowns
+        } catch (error) {
+            console.error('Failed to save account:', error);
+            App.hideLoader();
+            App.showToast('Failed to save account', 'error');
         }
 
-        // Close and refresh
-        App.closeModal(document.getElementById('accountModal'));
         this.currentAccountId = null;
-        this.loadStats();
-        this.loadAccounts();
-        this.loadRequirements();
-        App.loadAccounts(); // Refresh dropdowns
     }
 };
 

@@ -806,13 +806,30 @@ const Transactions = {
     /**
      * Confirm delete
      */
-    confirmDelete() {
+    async confirmDelete() {
         if (this.deleteTransactionId) {
-            Storage.deleteTransaction(this.deleteTransactionId);
-            this.deleteTransactionId = null;
+            const transactionId = this.deleteTransactionId;
             App.closeModal(document.getElementById('deleteModal'));
-            App.showToast('Transaction deleted', 'success');
-            this.loadTransactions();
+            App.showLoader('Deleting Transaction', 'Please wait...');
+
+            try {
+                Storage.deleteTransaction(transactionId);
+
+                // Sync with Google Sheets
+                if (SheetsAPI.isConfigured()) {
+                    await SheetsAPI.deleteTransaction(transactionId);
+                }
+
+                App.hideLoader();
+                App.showToast('Transaction deleted', 'success');
+                this.loadTransactions();
+            } catch (error) {
+                console.error('Failed to delete transaction:', error);
+                App.hideLoader();
+                App.showToast('Failed to delete transaction', 'error');
+            }
+
+            this.deleteTransactionId = null;
         }
     },
 
@@ -927,33 +944,39 @@ const Transactions = {
             }
         }
 
-        // Save
-        if (this.currentTransactionId) {
-            Storage.updateTransaction(this.currentTransactionId, transaction);
-            App.showToast('Transaction updated', 'success');
-        } else {
-            Storage.addTransaction(transaction);
-            App.showToast('Transaction added', 'success');
-        }
+        // Close modal and show loader
+        const isUpdate = !!this.currentTransactionId;
+        App.closeModal(document.getElementById('transactionModal'));
+        App.showLoader(isUpdate ? 'Updating Transaction' : 'Adding Transaction', 'Please wait...');
 
-        // Sync
-        if (SheetsAPI.isConfigured()) {
-            try {
-                if (this.currentTransactionId) {
+        try {
+            // Save locally
+            if (isUpdate) {
+                Storage.updateTransaction(this.currentTransactionId, transaction);
+            } else {
+                Storage.addTransaction(transaction);
+            }
+
+            // Sync with Google Sheets
+            if (SheetsAPI.isConfigured()) {
+                if (isUpdate) {
                     await SheetsAPI.updateTransaction(this.currentTransactionId, transaction);
                 } else {
                     await SheetsAPI.addTransaction(transaction);
                 }
-            } catch (error) {
-                console.error('Failed to sync:', error);
             }
+
+            App.hideLoader();
+            App.showToast(isUpdate ? 'Transaction updated' : 'Transaction added', 'success');
+            this.loadTransactions();
+        } catch (error) {
+            console.error('Failed to save transaction:', error);
+            App.hideLoader();
+            App.showToast('Failed to save transaction', 'error');
         }
 
-        // Close and refresh
-        App.closeModal(document.getElementById('transactionModal'));
         this.currentTransactionId = null;
         this.tags = [];
-        this.loadTransactions();
     },
 
     /**
