@@ -3,47 +3,47 @@
  * Enables offline functionality and caching
  */
 
-const CACHE_NAME = 'financeflow-v1.0.1';
-const STATIC_CACHE = 'financeflow-static-v1.0.1';
-const DYNAMIC_CACHE = 'financeflow-dynamic-v1.0.1';
+const CACHE_NAME = 'financeflow-v1.1.0';
+const STATIC_CACHE = 'financeflow-static-v1.1.0';
+const DYNAMIC_CACHE = 'financeflow-dynamic-v1.1.0';
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/login.html',
-    '/accounts.html',
-    '/transactions.html',
-    '/investments.html',
-    '/emis.html',
-    '/calculators.html',
-    '/reports.html',
-    '/categories.html',
-    '/settings.html',
-    '/logs.html',
-    '/docs.html',
-    '/css/styles.css',
-    '/css/animations.css',
-    '/css/auth.css',
-    '/css/accounts.css',
-    '/js/config.js',
-    '/js/storage.js',
-    '/js/sheets-api.js',
-    '/js/app.js',
-    '/js/auth.js',
-    '/js/dashboard.js',
-    '/js/accounts.js',
-    '/js/transactions.js',
-    '/js/investments.js',
-    '/js/emis.js',
-    '/js/calculators.js',
-    '/js/reports.js',
-    '/js/categories.js',
-    '/js/settings.js',
-    '/js/animations.js',
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
+    './',
+    './index.html',
+    './login.html',
+    './accounts.html',
+    './transactions.html',
+    './investments.html',
+    './emis.html',
+    './calculators.html',
+    './reports.html',
+    './categories.html',
+    './settings.html',
+    './logs.html',
+    './docs.html',
+    './css/styles.css',
+    './css/animations.css',
+    './css/auth.css',
+    './css/accounts.css',
+    './js/config.js',
+    './js/storage.js',
+    './js/sheets-api.js',
+    './js/app.js',
+    './js/auth.js',
+    './js/dashboard.js',
+    './js/accounts.js',
+    './js/transactions.js',
+    './js/investments.js',
+    './js/emis.js',
+    './js/calculators.js',
+    './js/reports.js',
+    './js/categories.js',
+    './js/settings.js',
+    './js/animations.js',
+    './manifest.json',
+    './icons/icon-192x192.png',
+    './icons/icon-512x512.png'
 ];
 
 // External resources to cache
@@ -151,7 +151,7 @@ self.addEventListener('fetch', event => {
 
                 // Return offline page for navigation requests
                 if (request.mode === 'navigate') {
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 }
 
                 return new Response('Offline', { status: 503 });

@@ -34,8 +34,8 @@ const App = {
     async registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js', {
-                    scope: '/'
+                const registration = await navigator.serviceWorker.register('./sw.js', {
+                    scope: './'
                 });
 
                 console.log('[PWA] Service Worker registered:', registration.scope);

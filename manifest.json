@@ -2,12 +2,12 @@
   "name": "FinanceFlow - Personal Finance Tracker",
   "short_name": "FinanceFlow",
   "description": "Your personal finance companion - track expenses, manage investments, and take control of your money",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#6366f1",
   "orientation": "any",
-  "scope": "/",
+  "scope": "./",
   "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
@@ -59,42 +59,26 @@
       "purpose": "maskable any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "icons/screenshot-desktop.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard - Desktop View"
-    },
-    {
-      "src": "icons/screenshot-mobile.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Dashboard - Mobile View"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Add Transaction",
       "short_name": "Add",
       "description": "Quickly add a new transaction",
-      "url": "/index.html?action=add",
+      "url": "./index.html?action=add",
       "icons": [{ "src": "icons/shortcut-add.png", "sizes": "96x96" }]
     },
     {
       "name": "View Accounts",
       "short_name": "Accounts",
       "description": "View your accounts and cards",
-      "url": "/accounts.html",
+      "url": "./accounts.html",
       "icons": [{ "src": "icons/shortcut-accounts.png", "sizes": "96x96" }]
     },
     {
       "name": "Reports",
       "short_name": "Reports",
       "description": "View financial reports",
-      "url": "/reports.html",
+      "url": "./reports.html",
       "icons": [{ "src": "icons/shortcut-reports.png", "sizes": "96x96" }]
     }
   ],
