@@ -351,6 +351,7 @@
 html {
     font-size: 16px;
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -814,6 +815,7 @@ h4 { font-size: 1.125rem; }
     min-height: 100vh;
     transition: margin-left var(--transition);
     padding-bottom: 0;
+    overflow-x: hidden;
 }
 
 /* Top Header */

@@ -705,6 +705,18 @@
 @media (max-width: 768px) {
     .accounts-content {
         padding: 1rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .tabs-container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .tabs-header {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .account-stats {
@@ -759,6 +771,29 @@
 @media (max-width: 480px) {
     .accounts-content {
         padding: 0.75rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .tabs-container {
+        max-width: 100%;
+    }
+
+    .tab-content {
+        padding: 1rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .wallets-grid,
+    .accounts-grid,
+    .cards-grid {
+        max-width: 100%;
+    }
+
+    .wallet-card {
+        max-width: 100%;
+        flex-wrap: wrap;
     }
 
     .account-stats {
