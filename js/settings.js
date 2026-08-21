@@ -142,7 +142,7 @@ const Settings = {
 
         // Load form values
         document.getElementById('sheetUrl').value = Storage.getSheetUrl();
-        document.getElementById('webAppUrl').value = Storage.getWebAppUrl();
+        document.getElementById('webAppUrl').value = SheetsAPI.getWebAppUrl();
         document.getElementById('currency').value = settings.currency || 'INR';
         document.getElementById('dateFormat').value = settings.dateFormat || 'DD/MM/YYYY';
         document.getElementById('fiscalYearStart').value = settings.fiscalYearStart || 4;
@@ -244,7 +244,7 @@ const Settings = {
         const statusEl = document.getElementById('connectionStatus');
         if (!statusEl) return;
 
-        const webAppUrl = Storage.getWebAppUrl();
+        const webAppUrl = SheetsAPI.getWebAppUrl();
         if (!webAppUrl) {
             statusEl.innerHTML = '<i class="fas fa-circle" style="color: var(--light-300);"></i> Not connected';
             return;
@@ -277,7 +277,7 @@ const Settings = {
         statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
 
         // Temporarily save URL for testing
-        const oldUrl = Storage.getWebAppUrl();
+        const oldUrl = SheetsAPI.getWebAppUrl();
         Storage.saveWebAppUrl(webAppUrl);
 
         try {

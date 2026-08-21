@@ -7,8 +7,17 @@ const SheetsAPI = {
     /**
      * Get the web app URL
      */
+    /**
+     * THE CONSTANT, DIRECTLY. One backend, one address, declared in js/config.js.
+     *
+     * This used to go through Storage.getWebAppUrl(), which read localStorage — so a value
+     * saved once outranked every later release, and an older deployment meant a different
+     * SPREADSHEET. That is what made login answer "User not found" for an account sitting
+     * visibly in the sheet. No lookup, no default parameter, no stored value in the path:
+     * that failure cannot recur.
+     */
     getWebAppUrl() {
-        return Storage.getWebAppUrl();
+        return (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_WEB_APP_URL) || '';
     },
 
     /**

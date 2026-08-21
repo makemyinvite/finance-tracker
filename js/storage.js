@@ -345,25 +345,17 @@ const Storage = {
      * Get Web App URL
      */
     /**
-     * THE CODE IS THE SINGLE SOURCE OF TRUTH for the backend address.
+     * The constant, same as SheetsAPI.getWebAppUrl(). Kept only so any older caller keeps
+     * working — nothing should resolve the backend address through storage, because a stored
+     * value outranking the code is exactly what pointed the app at the wrong spreadsheet.
      *
-     * This used to prefer the localStorage value, which made sense when FinanceFlow was a
-     * template — clone it, deploy your own script, paste your own URL. With one shared
-     * backend it is the wrong way round: a URL saved once silently overrode every later
-     * release, and pointing at an older deployment means a different SPREADSHEET. That is
-     * what produced "User not found" for an account sitting visibly in the sheet.
-     *
-     * A stale value is DELETED rather than ignored, so Settings can never show one address
-     * while the app talks to another.
+     * The stale-key cleanup is housekeeping now: the return value does not depend on it.
      */
     getWebAppUrl() {
         try {
-            const stale = this.get(CONFIG.STORAGE_KEYS.WEB_APP_URL, '');
-            if (stale && stale !== CONFIG.DEFAULT_WEB_APP_URL) {
-                localStorage.removeItem(CONFIG.STORAGE_KEYS.WEB_APP_URL);
-                console.warn('[config] Removed a saved Web App URL that overrode the app:', stale);
-            }
-        } catch (e) { /* private mode: nothing to clean */ }
+            const stale = localStorage.getItem(CONFIG.STORAGE_KEYS.WEB_APP_URL);
+            if (stale) localStorage.removeItem(CONFIG.STORAGE_KEYS.WEB_APP_URL);
+        } catch (e) { /* private mode */ }
         return CONFIG.DEFAULT_WEB_APP_URL || '';
     },
 
