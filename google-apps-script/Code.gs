@@ -470,30 +470,60 @@ function doPost(e) {
     const data = JSON.parse(contents);
     const action = data.action;
 
-    // Extract user info from request for logging
-    const userEmail = data.userEmail || null;
-    const userName = data.userName || null;
-    const user = userName || userEmail || 'System';
-
-    // Token validation for protected actions
-    const protectedActions = [
-      'addTransaction', 'updateTransaction', 'deleteTransaction',
-      'addAccount', 'updateAccount', 'deleteAccount',
-      'addCategory', 'saveInvestment', 'deleteInvestment',
-      'saveEmi', 'updateEmi', 'deleteEmi',
-      'saveNotificationSettings', 'saveAutomationSettings',
-      'getPendingTransactions', 'approvePendingTransaction', 'rejectPendingTransaction',
-      'changePassword', 'logout'
+    // ── AUTHENTICATION ────────────────────────────────────────────────────────
+    // DENY BY DEFAULT. This used to be a denylist of "protected" actions, guarded by
+    // `&& data.token` - so omitting the token skipped the check completely, and 24 of the
+    // 43 handled actions were never listed in the first place. A denylist is always
+    // missing whatever action gets added next, which is how that happened. Anything not
+    // named here now needs a valid session.
+    const PUBLIC_ACTIONS = [
+      'test', 'login', 'register', 'forgotPassword', 'resetPassword', 'verifyToken'
     ];
 
-    if (protectedActions.includes(action) && data.token) {
+    let sessionEmail = null;
+    if (PUBLIC_ACTIONS.indexOf(action) === -1) {
       const tokenResult = verifyToken(data.token);
-      if (!tokenResult.success) {
-        return createJsonResponse({ success: false, error: 'Invalid or expired token' });
+      // NOTE `valid`, not `success`. verifyToken returns { success:true, valid:false } for a
+      // token that is expired OR complete garbage - `success` only reports that the check
+      // ran without throwing. The original guard tested `success`, so on the rare path where
+      // it executed at all it accepted any token string at all.
+      if (!tokenResult || tokenResult.valid !== true || !tokenResult.user) {
+        return createJsonResponse({ success: false, error: 'Unauthorized' });
+      }
+      // IDENTITY COMES FROM THE TOKEN, never from the request body. Handlers used to read
+      // data.userEmail directly, so a caller could claim to be anyone and every log line
+      // and createdBy value was attacker-controlled.
+      sessionEmail = tokenResult.user.email || null;
+    }
+
+    // Only used for log lines / createdBy. Falls back to the body ONLY for public actions,
+    // where there is no session to trust anyway.
+    const userEmail = sessionEmail || (PUBLIC_ACTIONS.indexOf(action) !== -1 ? (data.userEmail || null) : null);
+    const userName = sessionEmail ? sessionEmail : (data.userName || null);
+    const user = userName || userEmail || 'System';
+
+    // ── WRITE SERIALISATION ───────────────────────────────────────────────────
+    // Every writer addresses a row POSITION (deleteRow(i + 1), getRange(i + 1, ...)) after
+    // reading the sheet, with no lock anywhere - so two concurrent writers silently
+    // overwrite the wrong record. Locking HERE rather than in each of the ~12 writers is
+    // deliberate: one choke point cannot be forgotten by the next handler someone adds,
+    // and because each handler re-reads the sheet at its start, inside this lock that
+    // read-then-write pair becomes atomic.
+    const READ_ONLY_ACTIONS = [
+      'test', 'verifyToken', 'getTransactionsByMonth', 'getAllTransactions', 'getAccounts',
+      'getCategories', 'getInvestments', 'getEmis', 'getLogs', 'getNotificationSettings',
+      'getAutomationSettings', 'getGeneralSettings', 'getPendingTransactions', 'syncAll'
+    ];
+    let __lock = null;
+    if (READ_ONLY_ACTIONS.indexOf(action) === -1) {
+      __lock = LockService.getScriptLock();
+      if (!__lock.tryLock(25000)) {
+        return createJsonResponse({ success: false, error: 'Server busy, please retry' });
       }
     }
 
     let result;
+    try {
 
     switch (action) {
       case 'test':
@@ -624,6 +654,9 @@ function doPost(e) {
       case 'uploadFile':
         result = uploadFileToDrive(data.fileName, data.mimeType, data.data, user);
         break;
+      case 'getReceiptFile':
+        result = getReceiptFile(data.fileId, user);
+        break;
 
       // Manual Report Triggers
       case 'sendReportNow':
@@ -670,6 +703,11 @@ function doPost(e) {
       default:
         result = { success: false, error: 'Unknown action: ' + action };
     }
+    } finally {
+      // Released on every path, including a handler that throws — a lock left held would
+      // make every later write time out until the script's own limit expires.
+      if (__lock) __lock.releaseLock();
+    }
 
     return createJsonResponse(result);
 
@@ -715,8 +753,13 @@ function uploadFileToDrive(fileName, mimeType, base64Data, user = 'System') {
     // Create file in the folder
     const file = folder.createFile(blob);
 
-    // Set file to be viewable by anyone with the link
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    // DELIBERATELY NOT SHARED. This used to call
+    //   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW)
+    // which published every receipt - screenshots of bank and UPI confirmations - to a URL
+    // anyone could open. There is nothing to grant instead: the Web App is deployed
+    // "Execute as: Me", so this script IS the Drive owner and can already read what it
+    // creates. The file stays private and is served back through getReceiptFile() below,
+    // which checks the session first.
 
     const fileUrl = file.getUrl();
     const fileId = file.getId();
@@ -1435,9 +1478,78 @@ function migrateAccountsSheet() {
 /**
  * Simple hash function for passwords
  */
-function hashPassword(password) {
+function hashPassword(password, salt) {
+  // Per-user salt and many iterations. The previous version was a single unsalted SHA-256
+  // pass, which makes any common password a rainbow-table lookup. Apps Script has no
+  // bcrypt/scrypt, so stretching by iteration is the available defence.
+  const useSalt = salt || Utilities.getUuid().replace(/-/g, '');
+  let acc = useSalt + '|' + password;
+  for (let i = 0; i < PASSWORD_ITERATIONS; i++) {
+    acc = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, acc)
+      .map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+  }
+  return 'v2$' + useSalt + '$' + acc;
+}
+
+//: Enough to cost an attacker meaningfully, while staying well inside the 6-minute
+//: execution limit (~0.2s per login on Apps Script).
+const PASSWORD_ITERATIONS = 60000;
+
+/**
+ * Legacy hash: unsalted single-pass SHA-256. Kept ONLY so existing accounts can still log
+ * in - see verifyPassword, which upgrades them on the way through.
+ */
+function hashPasswordLegacy(password) {
   const hash = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password);
-  return hash.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
+  return hash.map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+}
+
+/**
+ * Check a password against whatever format is stored.
+ *
+ * Returns { ok, upgradedHash } - `upgradedHash` is set when the stored value was a legacy
+ * hash and the password was correct, so the caller can write the stronger form back. A
+ * straight swap to the new scheme would have locked every existing user out of the live
+ * deployment; this migrates them silently on their next successful login instead.
+ */
+function verifyPassword(password, stored) {
+  if (!stored) return { ok: false };
+  if (String(stored).indexOf('v2$') === 0) {
+    const parts = String(stored).split('$');
+    return { ok: hashPassword(password, parts[1]) === stored };
+  }
+  if (hashPasswordLegacy(password) === String(stored)) {
+    return { ok: true, upgradedHash: hashPassword(password) };
+  }
+  return { ok: false };
+}
+
+/**
+ * Return an uploaded receipt's bytes to an AUTHENTICATED caller.
+ *
+ * Needed because the files are no longer public: a private Drive file cannot be used as an
+ * <img src> (the browser carries no credential this script controls, so Drive answers with
+ * a sign-in page). The client renders the returned base64 as a data: URI instead.
+ *
+ * Reached only through doPost, which now requires a valid session for every non-public
+ * action - so the check that matters has already happened by the time this runs.
+ */
+function getReceiptFile(fileId, user = 'System') {
+  try {
+    if (!fileId) return { success: false, error: 'fileId is required' };
+    const file = DriveApp.getFileById(fileId);
+    const blob = file.getBlob();
+    logInfo('FileRead', 'Receipt served', 'fileId: ' + fileId, user);
+    return {
+      success: true,
+      mimeType: blob.getContentType(),
+      name: file.getName(),
+      data: Utilities.base64Encode(blob.getBytes())
+    };
+  } catch (err) {
+    logError('FileRead', 'Could not read receipt', String(err), user);
+    return { success: false, error: 'File not found or not accessible' };
+  }
 }
 
 /**
@@ -1503,11 +1615,20 @@ function loginUser(email, password) {
 
     const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
     const data = sheet.getDataRange().getValues();
-    const passwordHash = hashPassword(password);
 
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] && data[i][1].toLowerCase() === email.toLowerCase()) {
-        if (data[i][2] === passwordHash) {
+        // Compared through verifyPassword, NOT by re-hashing and matching: hashPassword()
+        // now salts per call, so a direct comparison could never match. It also accepts a
+        // legacy unsalted hash and hands back the stronger form, which is upgraded in place
+        // below - so existing accounts migrate on their next login instead of being locked
+        // out by the change.
+        const check = verifyPassword(password, data[i][2]);
+        if (check.ok) {
+          if (check.upgradedHash) {
+            sheet.getRange(i + 1, 3).setValue(check.upgradedHash);
+            logInfo('Auth', 'Password hash upgraded to salted form', `Email: ${email}`, email);
+          }
           // Password matches - create session
           const token = generateToken();
           const now = new Date().toISOString();
@@ -1749,12 +1870,13 @@ function changePassword(token, oldPassword, newPassword, user = 'System') {
 
     const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
     const data = sheet.getDataRange().getValues();
-    const oldHash = hashPassword(oldPassword);
     const newHash = hashPassword(newPassword);
 
     for (let i = 1; i < data.length; i++) {
       if (data[i][0] === verification.user.id) {
-        if (data[i][2] === oldHash) {
+        // Same reason as login: the current password must be CHECKED, not re-hashed and
+        // compared. A legacy hash verifies fine here and is replaced by newHash anyway.
+        if (verifyPassword(oldPassword, data[i][2]).ok) {
           sheet.getRange(i + 1, 3).setValue(newHash);
           sheet.getRange(i + 1, 6).setValue(new Date().toISOString());
           logInfo('Auth', 'Password changed successfully', `Email: ${verification.user.email}`, user);
