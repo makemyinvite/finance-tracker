@@ -24,7 +24,12 @@ const CONFIG = {
     EMIS: 'EMIs',
     NOTIFICATIONS: 'NotificationSettings',
     LOGS: 'Logs',
-    PENDING_TRANSACTIONS: 'PendingTransactions'
+    PENDING_TRANSACTIONS: 'PendingTransactions',
+    //: The invite allowlist. A row here IS the invitation — see the note on
+    //: requestLoginCode for why no separate invite token is needed.
+    MEMBERS: 'Members',
+    //: Short-lived OTPs and magic-link tokens, stored HASHED.
+    LOGIN_CODES: 'LoginCodes'
   }
 };
 
@@ -477,7 +482,12 @@ function doPost(e) {
     // missing whatever action gets added next, which is how that happened. Anything not
     // named here now needs a valid session.
     const PUBLIC_ACTIONS = [
-      'test', 'login', 'register', 'forgotPassword', 'resetPassword', 'verifyToken'
+      // `register` stays reachable without a session ONLY so a fresh deployment can create
+      // its first owner; registerUser() itself refuses once the allowlist is non-empty.
+      'test', 'login', 'register', 'forgotPassword', 'resetPassword', 'verifyToken',
+      // Passwordless login. Necessarily public — the caller has no session yet. Each is
+      // rate-limited and none of them reveals whether an address is registered.
+      'requestLoginCode', 'verifyLoginCode', 'redeemMagicLink'
     ];
 
     let sessionEmail = null;
@@ -658,6 +668,28 @@ function doPost(e) {
         result = getReceiptFile(data.fileId, user);
         break;
 
+      // Passwordless login
+      case 'requestLoginCode':
+        result = requestLoginCode(data.email, data.appUrl);
+        break;
+      case 'verifyLoginCode':
+        result = redeemLoginSecret(data.email, data.code, null);
+        break;
+      case 'redeemMagicLink':
+        result = redeemLoginSecret(null, null, data.linkToken);
+        break;
+
+      // Members — the allowlist IS the invite system
+      case 'listMembers':
+        result = listMembers();
+        break;
+      case 'addMember':
+        result = addMember(data.email, data.name, data.isOwner, userEmail);
+        break;
+      case 'removeMember':
+        result = removeMember(data.email, userEmail);
+        break;
+
       // Manual Report Triggers
       case 'sendReportNow':
         result = sendReportNow(data.type, data.token);
@@ -823,6 +855,12 @@ function initializeSheet(sheet, name) {
     ],
     [CONFIG.SHEET_NAMES.USERS]: [
       'ID', 'Email', 'Password Hash', 'Name', 'Created At', 'Updated At'
+    ],
+    [CONFIG.SHEET_NAMES.MEMBERS]: [
+      'Email', 'Name', 'Is Owner', 'Added By', 'Added At'
+    ],
+    [CONFIG.SHEET_NAMES.LOGIN_CODES]: [
+      'Email', 'Code Hash', 'Link Hash', 'Expires At', 'Attempts', 'Used At', 'Created At'
     ],
     [CONFIG.SHEET_NAMES.SESSIONS]: [
       'Token', 'User ID', 'Email', 'Created At', 'Expires At'
@@ -1552,6 +1590,288 @@ function getReceiptFile(fileId, user = 'System') {
   }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PASSWORDLESS LOGIN — magic link + OTP, on an invite allowlist
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+//: How long a code or link is good for. Ten minutes is long enough to switch to an inbox
+//: and back, short enough that a link sitting in browser history is mostly harmless.
+const LOGIN_CODE_TTL_MS = 10 * 60 * 1000;
+//: Six digits is only a million combinations, so the attempt cap is what actually protects
+//: it — not the length.
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_RESEND_COOLDOWN_MS = 60 * 1000;
+const LOGIN_MAX_PER_HOUR = 5;
+
+/**
+ * Keyed digest, used for everything secret that has to be stored.
+ *
+ * The pepper lives in Script Properties, NOT in this file: the repository is public, and a
+ * hash whose input is entirely public is a lookup table. It is generated once on first use.
+ */
+function hashSecret(value) {
+  const props = PropertiesService.getScriptProperties();
+  let pepper = props.getProperty('LOGIN_PEPPER');
+  if (!pepper) {
+    pepper = Utilities.getUuid() + Utilities.getUuid();
+    props.setProperty('LOGIN_PEPPER', pepper);
+  }
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, pepper + '|' + String(value))
+    .map(function (b) { return ('0' + (b & 0xFF).toString(16)).slice(-2); }).join('');
+}
+
+/**
+ * A six-digit code from a crypto-quality source.
+ *
+ * NOT Math.random(): Apps Script's is not crypto-strong, and a code predictable from the
+ * clock is weaker than the password this replaces. getUuid() is a v4 UUID from a proper
+ * source; the digits come from a keyed digest of it so the UUID itself is not recoverable.
+ */
+function generateOtp() {
+  const digest = hashSecret('otp|' + Utilities.getUuid());
+  let n = 0;
+  for (let i = 0; i < 8; i++) n = (n * 16 + parseInt(digest.charAt(i), 16)) % 1000000;
+  return ('00000' + n).slice(-6);
+}
+
+/** Is this address on the invite allowlist? */
+function isMemberEmail(email) {
+  if (!email) return null;
+  const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS);
+  const data = sheet.getDataRange().getValues();
+  const needle = String(email).trim().toLowerCase();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || '').trim().toLowerCase() === needle) {
+      return { email: needle, name: data[i][1] || '', isOwner: data[i][2] === true || String(data[i][2]).toLowerCase() === 'true' };
+    }
+  }
+  return null;
+}
+
+/**
+ * Find the Users row for an allowlisted address, creating it on first login.
+ *
+ * "Registered already" means ON THE ALLOWLIST — being added by an owner IS the
+ * registration. This row exists only because Sessions references a user id; there is no
+ * password on it, and no signup form anywhere that could create one.
+ */
+function findOrCreatePasswordlessUser(member) {
+  const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][1] || '').toLowerCase() === member.email) {
+      return { id: data[i][0], email: member.email, name: data[i][3] || member.name };
+    }
+  }
+  const id = generateId();
+  const now = new Date().toISOString();
+  // No password hash. Nothing can log in as this row except an emailed secret.
+  sheet.appendRow([id, member.email, '', member.name || '', now, now]);
+  logInfo('Auth', 'Passwordless user created from allowlist', 'Email: ' + member.email, member.email);
+  return { id: id, email: member.email, name: member.name || '' };
+}
+
+/** Issue a session for an already-verified address. Both flows end here. */
+function createSessionFor(user) {
+  const token = generateToken();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime());
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  getOrCreateSheet(CONFIG.SHEET_NAMES.SESSIONS)
+    .appendRow([token, user.id, user.email, now.toISOString(), expiresAt.toISOString()]);
+  return { success: true, token: token, user: user };
+}
+
+/**
+ * Send an OTP and a magic link to an allowlisted address.
+ *
+ * ALWAYS returns the same generic response. Telling the caller whether the address is
+ * known turns this endpoint into a membership oracle — feed it addresses until one comes
+ * back "sent" and the team is enumerated. The only observable difference is whether an
+ * email arrives, which requires already controlling the inbox.
+ */
+function requestLoginCode(email, appUrl) {
+  const generic = { success: true, message: 'If that address can sign in, a code is on its way.' };
+  try {
+    const clean = String(email || '').trim().toLowerCase();
+    if (!clean || clean.indexOf('@') === -1) return generic;
+
+    const member = isMemberEmail(clean);
+    if (!member) {
+      logWarning('Auth', 'Login requested for a non-member address', 'Email: ' + clean);
+      return generic;                        // same response, deliberately
+    }
+
+    const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.LOGIN_CODES);
+    const data = sheet.getDataRange().getValues();
+    const nowMs = Date.now();
+
+    // Throttle: one per minute, five per hour. Without this, six digits is brute-forceable
+    // simply by asking for a fresh code whenever one runs out of attempts.
+    let lastSent = 0, sentThisHour = 0;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0] || '').toLowerCase() !== clean) continue;
+      const created = new Date(data[i][6]).getTime();
+      if (created > lastSent) lastSent = created;
+      if (nowMs - created < 3600000) sentThisHour++;
+    }
+    if (nowMs - lastSent < LOGIN_RESEND_COOLDOWN_MS) {
+      return { success: false, error: 'Please wait a minute before asking for another code.' };
+    }
+    if (sentThisHour >= LOGIN_MAX_PER_HOUR) {
+      logWarning('Auth', 'Login code hourly limit hit', 'Email: ' + clean, clean);
+      return { success: false, error: 'Too many attempts. Try again in an hour.' };
+    }
+
+    const otp = generateOtp();
+    const linkToken = Utilities.getUuid() + Utilities.getUuid();
+    const expiresAt = new Date(nowMs + LOGIN_CODE_TTL_MS).toISOString();
+    // HASHED. A plaintext code in the Sheet is a login for anyone who can read it.
+    sheet.appendRow([clean, hashSecret(otp), hashSecret(linkToken), expiresAt, 0, '', new Date().toISOString()]);
+
+    const base = appUrl || PropertiesService.getScriptProperties().getProperty('APP_URL') || '';
+    const link = base ? (base + (base.indexOf('?') === -1 ? '?' : '&') + 'login=' + encodeURIComponent(linkToken)) : '';
+    const html =
+      '<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#1a1a1a">' +
+      '<p>Your sign-in code is:</p>' +
+      '<p style="font-size:30px;font-weight:700;letter-spacing:.16em;margin:14px 0">' + otp + '</p>' +
+      (link ? '<p>Or just <a href="' + link + '">tap here to sign in</a>.</p>' : '') +
+      '<p style="color:#666;font-size:13px">This expires in 10 minutes and can be used once. ' +
+      'If you did not ask for it, you can ignore this email.</p></div>';
+
+    MailApp.sendEmail({ to: clean, subject: 'Your sign-in code', htmlBody: html });
+    logInfo('Auth', 'Login code sent', 'Email: ' + clean, clean);
+    return generic;
+  } catch (err) {
+    logError('Auth', 'requestLoginCode failed', String(err));
+    return generic;                          // never leak the reason
+  }
+}
+
+/**
+ * Exchange an OTP or a magic-link token for a session.
+ *
+ * One function for both, because they differ only in which column is compared — and a
+ * second copy of expiry, single-use and attempt handling is a second place to get it wrong.
+ */
+function redeemLoginSecret(email, code, linkToken) {
+  try {
+    const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.LOGIN_CODES);
+    const data = sheet.getDataRange().getValues();
+    const byLink = !!linkToken;
+    const wanted = hashSecret(byLink ? linkToken : String(code || '').trim());
+    const clean = String(email || '').trim().toLowerCase();
+    const nowMs = Date.now();
+
+    // Newest first: asking for a fresh code should not be blocked by an older unused one.
+    for (let i = data.length - 1; i >= 1; i--) {
+      const rowEmail = String(data[i][0] || '').toLowerCase();
+      if (!byLink && rowEmail !== clean) continue;      // OTP is scoped to the address typed
+      const colIdx = byLink ? 2 : 1;
+      if (String(data[i][colIdx] || '') !== wanted) continue;
+
+      if (data[i][5]) return { success: false, error: 'That code has already been used.' };
+      if (new Date(data[i][3]).getTime() < nowMs) return { success: false, error: 'That code has expired.' };
+      const attempts = Number(data[i][4] || 0);
+      if (attempts >= LOGIN_MAX_ATTEMPTS) return { success: false, error: 'Too many attempts. Ask for a new code.' };
+
+      // Single use, marked BEFORE the session is issued: if anything below throws, the
+      // secret is already spent rather than replayable.
+      sheet.getRange(i + 1, 6).setValue(new Date().toISOString());
+
+      const member = isMemberEmail(rowEmail);
+      if (!member) {
+        // Removed from the allowlist between request and redeem — revocation must win.
+        logWarning('Auth', 'Login blocked: address no longer on the allowlist', 'Email: ' + rowEmail);
+        return { success: false, error: 'This address can no longer sign in.' };
+      }
+      const user = findOrCreatePasswordlessUser(member);
+      logInfo('Auth', byLink ? 'Signed in via magic link' : 'Signed in via code', 'Email: ' + rowEmail, rowEmail);
+      return createSessionFor(user);
+    }
+
+    // No match. Count the miss against the newest live code for this address, so guessing
+    // costs attempts rather than being free.
+    if (!byLink) {
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][0] || '').toLowerCase() !== clean) continue;
+        if (data[i][5] || new Date(data[i][3]).getTime() < nowMs) continue;
+        sheet.getRange(i + 1, 5).setValue(Number(data[i][4] || 0) + 1);
+        break;
+      }
+    }
+    return { success: false, error: 'That code is not valid.' };
+  } catch (err) {
+    logError('Auth', 'redeemLoginSecret failed', String(err));
+    return { success: false, error: 'Could not sign you in.' };
+  }
+}
+
+/** Owner-only: put an address on the allowlist. This is the entire invite flow. */
+function addMember(email, name, isOwner, actor) {
+  try {
+    const acting = isMemberEmail(actor);
+    if (!acting || !acting.isOwner) return { success: false, error: 'Only an owner can add members.' };
+    const clean = String(email || '').trim().toLowerCase();
+    if (!clean || clean.indexOf('@') === -1) return { success: false, error: 'A valid email is required.' };
+    if (isMemberEmail(clean)) return { success: false, error: 'That address is already a member.' };
+    getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS)
+      .appendRow([clean, name || '', isOwner === true, actor, new Date().toISOString()]);
+    logInfo('Members', 'Member added', 'Email: ' + clean, actor);
+    return { success: true };
+  } catch (err) {
+    logError('Members', 'addMember failed', String(err), actor);
+    return { success: false, error: 'Could not add that member.' };
+  }
+}
+
+/** Owner-only: remove an address. Their existing sessions are killed too. */
+function removeMember(email, actor) {
+  try {
+    const acting = isMemberEmail(actor);
+    if (!acting || !acting.isOwner) return { success: false, error: 'Only an owner can remove members.' };
+    const clean = String(email || '').trim().toLowerCase();
+    if (clean === String(actor).trim().toLowerCase()) {
+      return { success: false, error: 'You cannot remove yourself.' };
+    }
+    const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS);
+    const data = sheet.getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      if (String(data[i][0] || '').toLowerCase() === clean) sheet.deleteRow(i + 1);
+    }
+    // Revoking access has to end the sessions they already hold, or removal does nothing
+    // for up to thirty days.
+    const ss = getOrCreateSheet(CONFIG.SHEET_NAMES.SESSIONS);
+    const sd = ss.getDataRange().getValues();
+    for (let i = sd.length - 1; i >= 1; i--) {
+      if (String(sd[i][2] || '').toLowerCase() === clean) ss.deleteRow(i + 1);
+    }
+    logInfo('Members', 'Member removed and sessions revoked', 'Email: ' + clean, actor);
+    return { success: true };
+  } catch (err) {
+    logError('Members', 'removeMember failed', String(err), actor);
+    return { success: false, error: 'Could not remove that member.' };
+  }
+}
+
+/** The member list. Behind the auth gate, so any signed-in member may read it. */
+function listMembers() {
+  try {
+    const data = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS).getDataRange().getValues();
+    const out = [];
+    for (let i = 1; i < data.length; i++) {
+      if (!data[i][0]) continue;
+      out.push({ email: data[i][0], name: data[i][1] || '',
+                 isOwner: data[i][2] === true || String(data[i][2]).toLowerCase() === 'true',
+                 addedBy: data[i][3] || '', addedAt: data[i][4] || '' });
+    }
+    return { success: true, members: out };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
 /**
  * Generate session token
  */
@@ -1571,11 +1891,31 @@ function registerUser(email, password, name) {
     const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
     const data = sheet.getDataRange().getValues();
 
+    // SELF-REGISTRATION IS CLOSED. Membership is by invitation — an owner adds the address
+    // and the person signs in with an emailed code. The single exception is the first user
+    // on a fresh deployment, because an empty allowlist has nobody who could do the adding.
+    const membersSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS);
+    const membersData = membersSheet.getDataRange().getValues();
+    let memberCount = 0;
+    for (let m = 1; m < membersData.length; m++) if (membersData[m][0]) memberCount++;
+
+    if (memberCount > 0 && !isMemberEmail(email)) {
+      logWarning('Auth', 'Registration refused: not invited', `Email: ${email}`);
+      return { success: false, error: 'Ask an owner to add your email first.' };
+    }
+
     // Check if user already exists
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] && data[i][1].toLowerCase() === email.toLowerCase()) {
         return { success: false, error: 'User with this email already exists' };
       }
+    }
+
+    if (memberCount === 0) {
+      // First run: this person becomes the owner, and the allowlist is no longer empty, so
+      // this branch can never be taken again.
+      membersSheet.appendRow([email.toLowerCase(), name || '', true, 'first-run', new Date().toISOString()]);
+      logInfo('Auth', 'First user registered as owner', `Email: ${email}`, email);
     }
 
     const id = generateId();
@@ -1611,6 +1951,15 @@ function loginUser(email, password) {
     if (!email || !password) {
       logWarning('Auth', 'Login attempt with missing credentials', `Email provided: ${!!email}`);
       return { success: false, error: 'Email and password are required' };
+    }
+
+    // THE ALLOWLIST GATES THIS PATH TOO. Without this check there are two login routes
+    // with two different rules — magic link honours Members, password login honoured only
+    // the Users sheet — so anyone who could create a Users row walked straight past the
+    // invite system. Same gate, both doors.
+    if (!isMemberEmail(email)) {
+      logWarning('Auth', 'Password login refused: not on the allowlist', `Email: ${email}`);
+      return { success: false, error: 'Invalid email or password' };   // no enumeration
     }
 
     const sheet = getOrCreateSheet(CONFIG.SHEET_NAMES.USERS);
@@ -1747,7 +2096,10 @@ function forgotPassword(email) {
     for (let i = 1; i < data.length; i++) {
       if (data[i][1] && data[i][1].toLowerCase() === email.toLowerCase()) {
         // Generate 6-digit reset code
-        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        // generateOtp(), not Math.random(): Apps Script's Math.random is not crypto-strong,
+        // and this code grants a password reset — a full account takeover. It was the
+        // weakest link in the auth chain by some distance.
+        const resetCode = generateOtp();
         const expiresAt = new Date();
         expiresAt.setMinutes(expiresAt.getMinutes() + 15); // Code expires in 15 minutes
 
