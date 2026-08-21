@@ -75,6 +75,36 @@ const Auth = {
     },
 
     /**
+     * Turn a failure into something that identifies itself.
+     *
+     * Every catch here used to say "Could not reach the server" and throw err.message away,
+     * so a saved-URL problem, a demo-mode short-circuit and a real outage were
+     * indistinguishable — and the message pointed at the one cause that was usually wrong.
+     */
+    explain(err) {
+        const msg = (err && err.message) ? String(err.message) : '';
+        if (/not configured/i.test(msg)) {
+            return 'No Web App URL is set. Open Settings and add it, or clear the saved one.';
+        }
+        return msg || 'Could not reach the server.';
+    },
+
+    /**
+     * If demo mode is on, nothing ever leaves the browser.
+     *
+     * SheetsAPI.request() short-circuits and returns { success:true, demo:true } for any
+     * action, so a code is reported as sent and never arrives, with no error anywhere. Worth
+     * saying out loud rather than letting it look like a silent server failure.
+     */
+    warnIfDemo(res) {
+        if (res && res.demo) {
+            this.showToast('Demo mode is on, so nothing was sent. Sign out of demo mode first.', 'error');
+            return true;
+        }
+        return false;
+    },
+
+    /**
      * Ask the server to email a sign-in code.
      *
      * The reply is deliberately the same whether or not the address can sign in, and this
@@ -93,6 +123,7 @@ const Auth = {
                 // rather than relying on APP_URL being set in Script Properties.
                 appUrl: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
             });
+            if (this.warnIfDemo(res)) return;
             if (res && res.success === false) {
                 // A real refusal: the throttle. Worth showing, it is not about identity.
                 this.showToast(res.error || 'Could not send a code.', 'error');
@@ -105,7 +136,8 @@ const Auth = {
             if (sentTo) sentTo.textContent = (res && res.message) || 'Check your email.';
             document.getElementById('codeDigits')?.focus();
         } catch (err) {
-            this.showToast('Could not reach the server.', 'error');
+            this.showToast(this.explain(err), 'error');
+            console.error('requestLoginCode failed:', err);
         } finally {
             this.setLoading(btn, false);
         }
@@ -125,7 +157,8 @@ const Auth = {
             }
             this.showToast((res && res.error) || 'That code is not valid.', 'error');
         } catch (err) {
-            this.showToast('Could not reach the server.', 'error');
+            this.showToast(this.explain(err), 'error');
+            console.error('verifyLoginCode failed:', err);
         } finally {
             this.setLoading(btn, false);
         }
@@ -160,7 +193,8 @@ const Auth = {
             }
             this.showToast((res && res.error) || 'That sign-in link is no longer valid.', 'error');
         } catch (err) {
-            this.showToast('Could not reach the server.', 'error');
+            this.showToast(this.explain(err), 'error');
+            console.error('redeemMagicLink failed:', err);
         }
         return false;
     },
