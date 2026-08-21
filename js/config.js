@@ -6,7 +6,7 @@
 const CONFIG = {
     // App Info
     APP_NAME: 'FinanceFlow',
-    VERSION: '1.1.0',
+    VERSION: '1.2.0',
 
     // Google Apps Script Web App URL
     DEFAULT_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycby3lAOWfZtMDZzyXNe8umsh8ivQb3HKOI2uvliYTdfZsp37V9n_ou5mMVhbtl6xB77K/exec',

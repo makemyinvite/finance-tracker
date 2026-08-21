@@ -3,9 +3,14 @@
  * Enables offline functionality and caching
  */
 
-const CACHE_NAME = 'financeflow-v1.1.0';
-const STATIC_CACHE = 'financeflow-static-v1.1.0';
-const DYNAMIC_CACHE = 'financeflow-dynamic-v1.1.0';
+/* BUMP THIS ON EVERY RELEASE.
+   The activate handler already deletes caches whose name differs from the current one — it
+   just never fired, because the name was hardcoded and therefore never differed. One
+   constant, so the three names cannot drift apart. */
+const APP_VERSION = '1.2.0';
+const CACHE_NAME = 'financeflow-v' + APP_VERSION;
+const STATIC_CACHE = 'financeflow-static-v' + APP_VERSION;
+const DYNAMIC_CACHE = 'financeflow-dynamic-v' + APP_VERSION;
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
@@ -131,6 +136,35 @@ self.addEventListener('fetch', event => {
 
     // Skip chrome-extension and other non-http protocols
     if (!url.protocol.startsWith('http')) {
+        return;
+    }
+
+    /* NETWORK-FIRST FOR OUR OWN CODE.
+       This used to be cache-first for everything: serve the cached copy, refresh in the
+       background. For images that is ideal. For HTML/JS/CSS it means the user always runs
+       the PREVIOUS release and a reload just serves the cache again — a permanent
+       one-deploy lag, not a staleness window. It is why fix after fix appeared to have no
+       effect on the device.
+       So code goes to the network first and falls back to the cache, which keeps offline
+       working. Everything else stays cache-first, which is what a service worker is for. */
+    const isOwnCode = url.origin === self.location.origin &&
+        /\.(?:html|js|css)$/i.test(url.pathname);
+
+    if (isOwnCode) {
+        event.respondWith(
+            fetch(request)
+                .then(response => {
+                    if (response && response.ok) {
+                        const copy = response.clone();
+                        event.waitUntil(
+                            caches.open(STATIC_CACHE).then(c => c.put(request, copy)).catch(() => {})
+                        );
+                    }
+                    return response;
+                })
+                // Offline, or the request failed: the cache is the fallback, not the default.
+                .catch(() => caches.match(request).then(cached => cached || fetchAndCache(request)))
+        );
         return;
     }
 
