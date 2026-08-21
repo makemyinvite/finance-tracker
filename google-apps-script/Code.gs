@@ -248,6 +248,27 @@ function showDeleteUserDialog() {
     if (emailResponse.getSelectedButton() !== ui.Button.OK) return;
     const email = emailResponse.getResponseText().trim();
 
+    // REVOKE ACCESS, not just the account row. Leaving the address on the Members allowlist
+    // meant a "deleted" user could register again — registerUser() permits an allowlisted
+    // address that has no Users row — and pick their own new password. Their live sessions
+    // go too, or removal does nothing for up to thirty days.
+    try {
+      const lower = String(email).toLowerCase();
+      const mSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS);
+      const mData = mSheet.getDataRange().getValues();
+      for (let i = mData.length - 1; i >= 1; i--) {
+        if (String(mData[i][0] || '').toLowerCase() === lower) mSheet.deleteRow(i + 1);
+      }
+      const sSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.SESSIONS);
+      const sData = sSheet.getDataRange().getValues();
+      for (let i = sData.length - 1; i >= 1; i--) {
+        if (String(sData[i][2] || '').toLowerCase() === lower) sSheet.deleteRow(i + 1);
+      }
+      logInfo('UserManagement', 'Allowlist entry and sessions revoked', 'Email: ' + email);
+    } catch (revokeErr) {
+      logWarning('UserManagement', 'Could not fully revoke access', String(revokeErr));
+    }
+
     if (!email) {
       ui.alert('No email entered!');
       return;
@@ -352,10 +373,27 @@ function showAddUserDialog() {
 
     sheet.appendRow([id, email, passwordHash, name, now, now]);
 
+    // GRANT ACCESS TOO. loginUser() checks the Members allowlist, so a Users row on its own
+    // produces an account that is refused at sign-in with "Invalid email or password" — with
+    // the CORRECT password. Creating a user here has to mean they can actually sign in.
+    // The first one added becomes an owner: an allowlist with no owner has nobody who can
+    // add the second person.
+    const membersSheet = getOrCreateSheet(CONFIG.SHEET_NAMES.MEMBERS);
+    const membersData = membersSheet.getDataRange().getValues();
+    let existingMembers = 0;
+    for (let m = 1; m < membersData.length; m++) if (membersData[m][0]) existingMembers++;
+    if (!isMemberEmail(email)) {
+      membersSheet.appendRow([
+        String(email).toLowerCase(), name, existingMembers === 0, 'sheet-menu', now
+      ]);
+    }
+
     // Send welcome email
     sendWelcomeEmail(email, name, password);
 
-    ui.alert('User Created!\n\nEmail: ' + email + '\nName: ' + name + '\nPassword: ' + password + '\n\nWelcome email has been sent!');
+    ui.alert('User Created!\n\nEmail: ' + email + '\nName: ' + name +
+             (existingMembers === 0 ? '\nRole: Owner' : '\nRole: Member') +
+             '\n\nWelcome email has been sent!');
     logInfo('UserManagement', 'New user created', `Email: ${email}, Name: ${name}`);
   } catch (error) {
     ui.alert('Error creating user: ' + error.message);
