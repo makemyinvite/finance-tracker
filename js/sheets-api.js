@@ -89,9 +89,14 @@ const SheetsAPI = {
                 throw new Error('Invalid response from server');
             }
 
-            if (result.error) {
-                throw new Error(result.error);
-            }
+            // A STRUCTURED REFUSAL IS DATA, NOT AN EXCEPTION. This used to throw whenever
+            // the server returned { success:false, error:"..." } — so "Invalid email or
+            // password", "Unauthorized" and "Ask an owner to add your email first" all
+            // became exceptions, and every caller's catch block reported a network problem
+            // while the network was fine. Worse than vague: it points the user at their
+            // connection when the real answer was in the response.
+            // Returned now, so callers can read result.error. Throwing is reserved for a
+            // request that never completed.
 
             console.log(`API ${action} success:`, result);
             return result;

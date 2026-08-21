@@ -238,7 +238,10 @@ const Auth = {
                 this.showToast(result.error || 'Login failed', 'error');
             }
         } catch (error) {
-            this.showToast('Network error. Please try again.', 'error');
+            // Only a request that never completed reaches here now — a refusal from the
+            // server arrives as result.success === false and is shown above. Still prefer
+            // the real message over a guess about the cause.
+            this.showToast(error && error.message ? error.message : 'Could not reach the server.', 'error');
             console.error('Login error:', error);
         }
 
