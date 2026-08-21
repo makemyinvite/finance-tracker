@@ -353,6 +353,44 @@ const Transactions = {
     },
 
     /**
+     * Open a receipt.
+     *
+     * Two shapes are stored, and both have to work:
+     *   - an http URL, from before receipts were made private. Those files are still shared
+     *     from when they were created, so the link still opens. Dropping this branch would
+     *     silently break every receipt taken before the privacy change.
+     *   - a Drive file id, which is private and has no working URL. The bytes come back
+     *     through getReceiptFile(), which checks the session first.
+     *
+     * A blob URL, not a data: URL: several browsers refuse to open a long data: URL in a new
+     * tab, which is precisely where a receipt wants to open.
+     */
+    async viewReceipt(idOrUrl, name) {
+        if (!idOrUrl) return;
+        if (/^https?:\/\//i.test(idOrUrl)) {
+            window.open(idOrUrl, '_blank', 'noopener');
+            return;
+        }
+        try {
+            App.showToast('Opening receipt…', 'info');
+            const res = await SheetsAPI.request('getReceiptFile', { fileId: idOrUrl });
+            if (!res || !res.success || !res.data) {
+                App.showToast(res && res.error ? res.error : 'Could not open that receipt.', 'error');
+                return;
+            }
+            const bytes = Uint8Array.from(atob(res.data), c => c.charCodeAt(0));
+            const url = URL.createObjectURL(new Blob([bytes], { type: res.mimeType || 'image/*' }));
+            const win = window.open(url, '_blank', 'noopener');
+            if (!win) App.showToast('Allow pop-ups to view receipts.', 'warning');
+            // Revoked on a delay: revoking immediately can race the new tab's own load.
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (err) {
+            console.error('Receipt open failed:', err);
+            App.showToast('Could not open that receipt.', 'error');
+        }
+    },
+
+    /**
      * Upload file to Google Drive
      */
     async uploadFileToDrive(file) {
@@ -368,7 +406,9 @@ const Transactions = {
                     });
 
                     if (result.success) {
-                        resolve(result.fileUrl);
+                        // The ID, not a URL. Receipts are private Drive files now, so there
+                        // is no URL that resolves for anyone - see viewReceipt().
+                        resolve(result.fileId);
                     } else {
                         reject(new Error(result.error || 'Upload failed'));
                     }
@@ -631,10 +671,11 @@ const Transactions = {
                             ${t.tags.map(tag => `<span class="transaction-tag">${tag}</span>`).join('')}
                         </div>
                     ` : ''}
-                    ${t.attachmentUrl ? `
-                        <a href="${t.attachmentUrl}" target="_blank" class="attachment-link" onclick="event.stopPropagation();">
+                    ${(t.attachmentFileId || t.attachmentUrl) ? `
+                        <button type="button" class="attachment-link"
+                                onclick="event.stopPropagation(); Transactions.viewReceipt('${t.attachmentFileId || t.attachmentUrl}', '${(t.attachmentName || '').replace(/'/g, '')}');">
                             <i class="fas fa-paperclip"></i> ${t.attachmentName || 'View Receipt'}
-                        </a>
+                        </button>
                     ` : ''}
                 </div>
                 <div class="transaction-amount-section">
@@ -927,8 +968,8 @@ const Transactions = {
                 if (progressFill) progressFill.style.width = '30%';
                 if (progressText) progressText.textContent = 'Uploading...';
 
-                const attachmentUrl = await this.uploadFileToDrive(this.selectedFile);
-                transaction.attachmentUrl = attachmentUrl;
+                const fileId = await this.uploadFileToDrive(this.selectedFile);
+                transaction.attachmentFileId = fileId;
                 transaction.attachmentName = this.selectedFile.name;
 
                 if (progressFill) progressFill.style.width = '100%';

@@ -2091,3 +2091,46 @@ h4 { font-size: 1.125rem; }
         transform: rotate(360deg);
     }
 }
+
+
+/* ── Receipt picker (Quick Add) ─────────────────────────────────────────────
+   Deliberately a small control, not a big drop zone: it holds one optional
+   image beside a form of required fields, and a large dashed canvas would read
+   as the most important thing on the screen. */
+.receipt-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  border: 1px dashed var(--primary, #6366f1);
+  background: var(--primary-light, #eef2ff);
+  color: var(--primary, #6366f1);
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  transition: background .15s, border-color .15s;
+}
+.receipt-btn:hover { background: var(--primary, #6366f1); color: #fff; }
+
+.receipt-preview {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px; border-radius: 10px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: var(--bg-secondary, #f9fafb);
+}
+.receipt-preview img {
+  width: 52px; height: 52px; flex: none;
+  object-fit: cover; border-radius: 8px;
+  border: 1px solid var(--border, #e5e7eb); background: #fff;
+}
+.receipt-meta {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; flex: 1; font-size: 13px;
+}
+/* the filename is the part that runs long, so it is the part that truncates */
+.receipt-meta > span:first-child {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600;
+}
+.receipt-size { color: var(--text-secondary, #6b7280); font-size: 12px; }
+.receipt-remove {
+  flex: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border, #e5e7eb); background: #fff;
+  color: var(--text-secondary, #6b7280);
+}
+.receipt-remove:hover { color: var(--danger, #ef4444); border-color: var(--danger, #ef4444); }

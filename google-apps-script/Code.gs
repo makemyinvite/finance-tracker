@@ -793,14 +793,15 @@ function uploadFileToDrive(fileName, mimeType, base64Data, user = 'System') {
     // creates. The file stays private and is served back through getReceiptFile() below,
     // which checks the session first.
 
-    const fileUrl = file.getUrl();
+    // NOT returned any more. The file is private, so getUrl() yields a link that shows a
+    // Google "you need access" page - and handing one back invites a caller to store it.
+    // getReceiptFile() is the way in.
     const fileId = file.getId();
 
     logInfo('FileUpload', 'File uploaded successfully', `Name: ${fileName}, ID: ${fileId}`, user);
 
     return {
       success: true,
-      fileUrl: fileUrl,
       fileId: fileId,
       fileName: fileName
     };
@@ -842,10 +843,18 @@ function initializeSheet(sheet, name) {
       'Has Debit Card', 'Debit Card Number', 'Created At', 'Updated At'
     ],
     [CONFIG.SHEET_NAMES.TRANSACTIONS]: [
+      // The two Attachment columns are not new behaviour — addTransaction() has always
+      // written 21 values into this 19-column header, so the receipt fields were landing in
+      // the columns labelled Created At / Updated At and the timestamps spilled past the
+      // end. Declaring them is the fix.
+      // "File ID", not "URL": receipts are private Drive files now, so there is no URL that
+      // works. The id is what getReceiptFile() resolves.
       'ID', 'Type', 'Amount', 'Date', 'Time', 'Description',
       'Category', 'Payment Method', 'Account', 'To Account',
       'UPI ID', 'UPI Ref', 'Tags', 'Notes', 'Is Recurring',
-      'Recurring Frequency', 'Recurring End', 'Created At', 'Updated At'
+      'Recurring Frequency', 'Recurring End',
+      'Attachment File ID', 'Attachment Name',
+      'Created At', 'Updated At'
     ],
     [CONFIG.SHEET_NAMES.CATEGORIES]: [
       'ID', 'Type', 'Name', 'Icon', 'Description', 'Budget', 'Custom', 'Created At'
@@ -960,7 +969,9 @@ function addTransaction(transaction, userEmail = 'System') {
       transaction.isRecurring || false,
       transaction.recurringFrequency || '',
       transaction.recurringEnd || '',
-      transaction.attachmentUrl || '',
+      // attachmentFileId is the current field; attachmentUrl is accepted so rows written
+      // by the older client still round-trip.
+      transaction.attachmentFileId || transaction.attachmentUrl || '',
       transaction.attachmentName || '',
       now,
       now
@@ -971,6 +982,12 @@ function addTransaction(transaction, userEmail = 'System') {
 
     // Update account balance
     updateAccountBalance(transaction.account, transaction.amount, transaction.type, userEmail);
+
+    // Tell the team. Only for expenses — income is not something the group needs mailed
+    // about, and every send spends the shared daily recipient quota.
+    if (String(transaction.type || '').toLowerCase() === 'expense') {
+      notifyExpenseAdded(transaction, userEmail);
+    }
 
     // Handle transfer - also update destination account
     if (transaction.type === 'transfer' && transaction.toAccount) {
@@ -1869,6 +1886,75 @@ function listMembers() {
     return { success: true, members: out };
   } catch (err) {
     return { success: false, error: String(err) };
+  }
+}
+
+
+/**
+ * Email the team that an expense was recorded. To = whoever added it, CC = the others.
+ *
+ * Event-driven rather than scheduled, so there is no trigger to install and nothing to
+ * de-duplicate: it runs inline on the write that caused it.
+ *
+ * NEVER attaches the receipt. The screenshot is a private Drive file on purpose, and mailing
+ * it hands out a copy that no longer answers to the allowlist.
+ *
+ * Throws nothing. A failed email must not fail the expense — losing the record because the
+ * notification bounced is a bad trade, and MailApp throws on quota exhaustion.
+ */
+function notifyExpenseAdded(transaction, actorEmail) {
+  try {
+    const members = listMembers();
+    if (!members.success || !members.members.length) return;
+
+    const actor = String(actorEmail || '').trim().toLowerCase();
+    const all = members.members.map(function (m) { return String(m.email).toLowerCase(); });
+    // The person who typed it is the addressee; everyone else is CC'd. If the actor is not a
+    // member (a script-run import, say) the first owner takes the To slot so the mail still
+    // has a primary recipient.
+    const to = all.indexOf(actor) !== -1 ? actor : all[0];
+    const cc = all.filter(function (e) { return e !== to; });
+    if (!to) return;
+
+    const amount = Number(transaction.amount || 0)
+      .toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const what = transaction.description || transaction.category || 'Expense';
+    const appUrl = PropertiesService.getScriptProperties().getProperty('APP_URL') || '';
+
+    const rows = [
+      ['Amount', '\u20B9' + amount],
+      ['What', what],
+      ['Category', transaction.category || '\u2014'],
+      ['Paid by', transaction.paymentMethod || '\u2014'],
+      ['Date', transaction.date || '\u2014'],
+      ['Added by', actor || 'system']
+    ].map(function (r) {
+      return '<tr><td style="padding:6px 16px 6px 0;color:#666">' + r[0] +
+             '</td><td style="padding:6px 0;font-weight:600">' + r[1] + '</td></tr>';
+    }).join('');
+
+    const html =
+      '<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;color:#1a1a1a">' +
+      '<p style="margin:0 0 14px">A new expense was recorded.</p>' +
+      '<table style="border-collapse:collapse;margin:0 0 16px">' + rows + '</table>' +
+      (transaction.notes ? '<p style="color:#555"><em>' + transaction.notes + '</em></p>' : '') +
+      (transaction.attachmentName
+        ? '<p style="color:#666;font-size:13px">A receipt is attached to this entry \u2014 ' +
+          'open it in the app to view it.</p>'
+        : '') +
+      (appUrl ? '<p><a href="' + appUrl + '">Open the tracker</a></p>' : '') +
+      '</div>';
+
+    const options = { to: to, subject: 'Expense recorded: \u20B9' + amount + ' \u00B7 ' + what, htmlBody: html };
+    if (cc.length) options.cc = cc.join(',');
+    MailApp.sendEmail(options);
+
+    logInfo('Notify', 'Expense notification sent',
+      'To: ' + to + (cc.length ? ', CC: ' + cc.join(',') : ''), actor);
+  } catch (err) {
+    // Logged, not thrown. MailApp throws once the daily recipient quota is gone, and that
+    // must not take the expense down with it.
+    logWarning('Notify', 'Expense notification failed', String(err), actorEmail);
   }
 }
 

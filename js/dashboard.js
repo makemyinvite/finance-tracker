@@ -342,9 +342,97 @@ const Dashboard = {
     /**
      * Setup quick add form
      */
+    /**
+     * Re-encode an image to WebP in the browser before it is uploaded.
+     *
+     * A phone screenshot is 2-5 MB of PNG; base64 adds another third on the way to Apps
+     * Script, and it lands in a Drive with a finite quota - for a picture whose only job is
+     * to be legible. 1600px WebP takes the same screenshot to ~200 KB with no visible loss,
+     * and turns an upload that looks broken on mobile data into one that feels instant.
+     *
+     * Falls back to the original bytes if anything here fails: a slightly large receipt
+     * beats no receipt.
+     */
+    async compressImage(file, maxDim = 1600, quality = 0.82) {
+        try {
+            const bitmap = await createImageBitmap(file);
+            const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+            const w = Math.round(bitmap.width * scale);
+            const h = Math.round(bitmap.height * scale);
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/webp', quality));
+            // Keep whichever is actually smaller - a small flat PNG can beat lossy WebP.
+            if (!blob || blob.size >= file.size) return { blob: file, mime: file.type, name: file.name };
+            const name = file.name.replace(/\.[^.]+$/, '') + '.webp';
+            return { blob, mime: 'image/webp', name };
+        } catch (e) {
+            console.warn('Receipt compression failed, sending the original', e);
+            return { blob: file, mime: file.type, name: file.name };
+        }
+    },
+
+    /** Blob -> bare base64 (no data: prefix, which Apps Script does not want). */
+    blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const r = new FileReader();
+            r.onload = () => resolve(String(r.result).split(',')[1] || '');
+            r.onerror = reject;
+            r.readAsDataURL(blob);
+        });
+    },
+
+    /**
+     * Wire the receipt picker: preview, remove, and the pending file.
+     * Held on the module rather than in the form, because a File cannot live in FormData
+     * after the compression step replaces it.
+     */
+    setupReceiptPicker() {
+        const input = document.getElementById('receipt');
+        const btn = document.getElementById('receiptBtn');
+        const preview = document.getElementById('receiptPreview');
+        const thumb = document.getElementById('receiptThumb');
+        const nameEl = document.getElementById('receiptName');
+        const sizeEl = document.getElementById('receiptSize');
+        const remove = document.getElementById('receiptRemove');
+        if (!input || !btn) return;
+
+        const clear = () => {
+            this._pendingReceipt = null;
+            input.value = '';
+            if (preview) preview.hidden = true;
+            btn.hidden = false;
+            if (thumb && thumb.src.startsWith('blob:')) URL.revokeObjectURL(thumb.src);
+        };
+        this._clearReceipt = clear;
+
+        btn.addEventListener('click', () => input.click());
+        if (remove) remove.addEventListener('click', clear);
+
+        input.addEventListener('change', () => {
+            const file = input.files && input.files[0];
+            if (!file) return clear();
+            if (!file.type.startsWith('image/')) {
+                App.showToast('That is not an image file.', 'error');
+                return clear();
+            }
+            this._pendingReceipt = file;
+            if (thumb) {
+                if (thumb.src.startsWith('blob:')) URL.revokeObjectURL(thumb.src);
+                thumb.src = URL.createObjectURL(file);
+            }
+            if (nameEl) nameEl.textContent = file.name;
+            if (sizeEl) sizeEl.textContent = (file.size / 1024).toFixed(0) + ' KB';
+            if (preview) preview.hidden = false;
+            btn.hidden = true;
+        });
+    },
+
     setupQuickAddForm() {
         const form = document.getElementById('quickAddForm');
         if (!form) return;
+        this.setupReceiptPicker();
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -364,6 +452,38 @@ const Dashboard = {
                 notes: formData.get('notes')
             };
 
+            // THE RECEIPT GOES FIRST, because the transaction has to carry its file id -
+            // but it must never be able to block the save. A failed upload warns and the
+            // expense is recorded without an attachment; refusing the save would trade a
+            // financial record for a screenshot, which is the wrong way round.
+            if (this._pendingReceipt && SheetsAPI.isConfigured()) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const restore = submitBtn ? submitBtn.innerHTML : null;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading receipt…';
+                }
+                try {
+                    const { blob, mime, name } = await this.compressImage(this._pendingReceipt);
+                    const base64 = await this.blobToBase64(blob);
+                    const res = await SheetsAPI.request('uploadFile', {
+                        fileName: name, mimeType: mime, data: base64
+                    });
+                    if (res && res.success && res.fileId) {
+                        // The ID, not a URL: the file is private, so no URL would resolve.
+                        transaction.attachmentFileId = res.fileId;
+                        transaction.attachmentName = name;
+                    } else {
+                        App.showToast('Receipt could not be uploaded — saving the expense without it.', 'warning');
+                    }
+                } catch (err) {
+                    console.error('Receipt upload failed:', err);
+                    App.showToast('Receipt could not be uploaded — saving the expense without it.', 'warning');
+                } finally {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = restore; }
+                }
+            }
+
             // Save to local storage
             Storage.addTransaction(transaction);
 
@@ -381,6 +501,7 @@ const Dashboard = {
             // Close modal and refresh
             App.closeModal(document.getElementById('quickAddModal'));
             form.reset();
+            if (this._clearReceipt) this._clearReceipt();   // form.reset() cannot clear this
             App.showToast('Transaction added successfully!', 'success');
 
             // Refresh dashboard

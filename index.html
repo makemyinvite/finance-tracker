@@ -386,6 +386,31 @@
                     <textarea id="notes" name="notes" placeholder="Any additional notes..."></textarea>
                 </div>
 
+                <!-- RECEIPT. `capture="environment"` makes the phone offer the camera as well
+                     as the gallery, which is how most of these actually get taken. The file is
+                     re-encoded to WebP in the browser before upload (see dashboard.js) and
+                     stored as a PRIVATE Drive file - only the id is kept, because a private
+                     file has no usable URL. -->
+                <div class="form-group">
+                    <label for="receipt">Receipt / screenshot (optional)</label>
+                    <div class="receipt-picker" id="receiptPicker">
+                        <input type="file" id="receipt" name="receipt" accept="image/*" capture="environment" hidden>
+                        <button type="button" class="receipt-btn" id="receiptBtn">
+                            <i class="fas fa-paperclip"></i> Attach screenshot
+                        </button>
+                        <div class="receipt-preview" id="receiptPreview" hidden>
+                            <img id="receiptThumb" alt="Receipt preview">
+                            <div class="receipt-meta">
+                                <span id="receiptName"></span>
+                                <span id="receiptSize" class="receipt-size"></span>
+                            </div>
+                            <button type="button" class="receipt-remove" id="receiptRemove" aria-label="Remove receipt">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelAdd">Cancel</button>
                     <button type="submit" class="btn btn-primary">
