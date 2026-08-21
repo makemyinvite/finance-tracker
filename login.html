@@ -87,6 +87,7 @@
                             <input type="checkbox" id="rememberMe">
                             <span>Remember me</span>
                         </label>
+                        <a href="#" onclick="showForm('code')">Email me a code</a>
                         <a href="#" onclick="showForm('forgot')">Forgot Password?</a>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">
@@ -109,6 +110,50 @@
                     </div>
                 </div>
 
+            </div>
+
+
+            <!-- SIGN IN WITH A CODE.
+                 Two steps in one container: ask for the email, then for the six digits the
+                 server mailed. Password sign-in stays available above as a fallback - it is
+                 the only route in for accounts created before this existed. -->
+            <div class="auth-form-container hidden" id="codeForm">
+                <h2>Sign in with a code</h2>
+                <p class="form-subtitle">We will email you a six-digit code. No password needed.</p>
+
+                <form id="codeRequestElement">
+                    <div class="form-group">
+                        <label for="codeEmail">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="codeEmail" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Email me a code
+                    </button>
+                </form>
+
+                <form id="codeVerifyElement" class="hidden">
+                    <div class="form-group">
+                        <label for="codeDigits">Six-digit code</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-key"></i>
+                            <input type="text" id="codeDigits" inputmode="numeric" autocomplete="one-time-code"
+                                   maxlength="6" pattern="[0-9]{6}" placeholder="000000" required>
+                        </div>
+                    </div>
+                    <p class="form-subtitle" id="codeSentTo"></p>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Sign in
+                    </button>
+                    <button type="button" class="btn btn-block" style="margin-top:.5rem"
+                            onclick="Auth.resetCodeFlow()">Use a different email</button>
+                </form>
+
+                <div class="form-options" style="margin-top:1rem;justify-content:center">
+                    <a href="#" onclick="showForm('login')">Sign in with a password instead</a>
+                </div>
             </div>
 
             <!-- Forgot Password Form -->

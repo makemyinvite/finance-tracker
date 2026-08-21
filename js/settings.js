@@ -7,6 +7,105 @@ const Settings = {
     /**
      * Initialize settings page
      */
+    /**
+     * Load the team list.
+     *
+     * Any signed-in member may READ the list - knowing who else is in the book is not
+     * sensitive to someone already in it. Only owners get the add/remove controls, and the
+     * server enforces that independently.
+     */
+    async loadMembers() {
+        const list = document.getElementById('membersList');
+        if (!list) return;
+        try {
+            const res = await SheetsAPI.request('listMembers', {});
+            if (!res || !res.success) {
+                list.innerHTML = '<p style="color:var(--text-secondary);font-size:.875rem">Sign in to see the team.</p>';
+                return;
+            }
+            const me = (JSON.parse(localStorage.getItem('financeflow_user') || '{}').email || '').toLowerCase();
+            const iAmOwner = res.members.some(m => String(m.email).toLowerCase() === me && m.isOwner);
+
+            list.innerHTML = res.members.map(m => {
+                const isMe = String(m.email).toLowerCase() === me;
+                // No remove button for yourself: the server refuses it anyway, and an owner
+                // removing themselves could leave a book nobody can administer.
+                const canRemove = iAmOwner && !isMe;
+                return `
+                  <div style="display:flex;align-items:center;gap:.75rem;padding:.625rem .75rem;
+                              border:1px solid var(--border);border-radius:var(--radius);">
+                    <i class="fas fa-user" style="color:var(--text-secondary)"></i>
+                    <div style="flex:1;min-width:0">
+                      <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                        ${m.name || m.email}${isMe ? ' <span style="font-weight:400;color:var(--text-secondary)">(you)</span>' : ''}
+                      </div>
+                      <div style="font-size:.8125rem;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                        ${m.email}
+                      </div>
+                    </div>
+                    ${m.isOwner ? '<span style="font-size:.75rem;font-weight:600;padding:.125rem .5rem;border-radius:999px;background:var(--primary-light);color:var(--primary)">Owner</span>' : ''}
+                    ${canRemove ? `<button type="button" class="btn btn-icon" title="Remove"
+                        onclick="Settings.removeMember('${m.email}')"><i class="fas fa-times"></i></button>` : ''}
+                  </div>`;
+            }).join('');
+
+            document.getElementById('memberAddRow')?.classList.toggle('hidden', !iAmOwner);
+            document.getElementById('memberOwnerNote')?.classList.toggle('hidden', iAmOwner);
+        } catch (err) {
+            list.innerHTML = '<p style="color:var(--text-secondary);font-size:.875rem">Could not load the team.</p>';
+        }
+    },
+
+    /** Add an address. That is the entire invite flow - nothing is emailed from here. */
+    async addMember() {
+        const emailEl = document.getElementById('newMemberEmail');
+        const nameEl = document.getElementById('newMemberName');
+        const email = (emailEl?.value || '').trim();
+        if (!email || email.indexOf('@') === -1) {
+            App.showToast('Enter a valid email address.', 'error');
+            return;
+        }
+        const btn = document.getElementById('addMemberBtn');
+        if (btn) btn.disabled = true;
+        try {
+            const res = await SheetsAPI.request('addMember', { email, name: (nameEl?.value || '').trim() });
+            if (res && res.success) {
+                App.showToast(email + ' can now sign in.', 'success');
+                if (emailEl) emailEl.value = '';
+                if (nameEl) nameEl.value = '';
+                this.loadMembers();
+            } else {
+                App.showToast((res && res.error) || 'Could not add that person.', 'error');
+            }
+        } catch (err) {
+            App.showToast('Could not reach the server.', 'error');
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    },
+
+    /**
+     * Remove an address.
+     *
+     * The confirmation names the session revocation on purpose: server-side this also deletes
+     * their live sessions, and a "remove" that left someone signed in for another thirty days
+     * would not be what anyone pressing this button means.
+     */
+    async removeMember(email) {
+        if (!confirm('Remove ' + email + '?\n\nThey lose access immediately \u2014 any session they are currently signed in with is ended too.')) return;
+        try {
+            const res = await SheetsAPI.request('removeMember', { email });
+            if (res && res.success) {
+                App.showToast(email + ' removed.', 'success');
+                this.loadMembers();
+            } else {
+                App.showToast((res && res.error) || 'Could not remove that person.', 'error');
+            }
+        } catch (err) {
+            App.showToast('Could not reach the server.', 'error');
+        }
+    },
+
     async init() {
         // Show loader and sync from API for non-demo users
         if (!SheetsAPI.isDemoMode()) {
@@ -18,6 +117,8 @@ const Settings = {
         this.loadAutomationSettings();
         this.setupEventListeners();
         this.setupAutomationListeners();
+        this.loadMembers();
+        document.getElementById('addMemberBtn')?.addEventListener('click', () => this.addMember());
 
         App.hideLoader();
     },

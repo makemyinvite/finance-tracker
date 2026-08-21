@@ -59,7 +59,123 @@ const Auth = {
             e.preventDefault();
             this.resetPassword();
         });
+
+        // Passwordless: ask for a code, then exchange it
+        document.getElementById('codeRequestElement')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.requestCode();
+        });
+        document.getElementById('codeVerifyElement')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.verifyCode();
+        });
+
+        // An emailed magic link lands here with ?login=<token> and signs in on arrival.
+        this.tryMagicLink();
     },
+
+    /**
+     * Ask the server to email a sign-in code.
+     *
+     * The reply is deliberately the same whether or not the address can sign in, and this
+     * shows it verbatim. Translating it into "no such user" in the client would rebuild the
+     * membership oracle the server goes out of its way to avoid.
+     */
+    async requestCode() {
+        const email = document.getElementById('codeEmail').value.trim();
+        if (!email) return;
+        const btn = document.querySelector('#codeRequestElement button[type="submit"]');
+        this.setLoading(btn, true);
+        try {
+            const res = await SheetsAPI.request('requestLoginCode', {
+                email,
+                // Lets the emailed magic link point back at wherever this app is served from,
+                // rather than relying on APP_URL being set in Script Properties.
+                appUrl: window.location.origin + window.location.pathname.replace(/[^/]*$/, '')
+            });
+            if (res && res.success === false) {
+                // A real refusal: the throttle. Worth showing, it is not about identity.
+                this.showToast(res.error || 'Could not send a code.', 'error');
+                return;
+            }
+            this._codeEmail = email;
+            document.getElementById('codeRequestElement').classList.add('hidden');
+            document.getElementById('codeVerifyElement').classList.remove('hidden');
+            const sentTo = document.getElementById('codeSentTo');
+            if (sentTo) sentTo.textContent = (res && res.message) || 'Check your email.';
+            document.getElementById('codeDigits')?.focus();
+        } catch (err) {
+            this.showToast('Could not reach the server.', 'error');
+        } finally {
+            this.setLoading(btn, false);
+        }
+    },
+
+    /** Exchange the six digits for a session. */
+    async verifyCode() {
+        const code = document.getElementById('codeDigits').value.trim();
+        if (!code || !this._codeEmail) return;
+        const btn = document.querySelector('#codeVerifyElement button[type="submit"]');
+        this.setLoading(btn, true);
+        try {
+            const res = await SheetsAPI.request('verifyLoginCode', { email: this._codeEmail, code });
+            if (res && res.success && res.token) {
+                this.persistSession(res);
+                return;
+            }
+            this.showToast((res && res.error) || 'That code is not valid.', 'error');
+        } catch (err) {
+            this.showToast('Could not reach the server.', 'error');
+        } finally {
+            this.setLoading(btn, false);
+        }
+    },
+
+    /** Back to the email step, e.g. after a typo in the address. */
+    resetCodeFlow() {
+        this._codeEmail = null;
+        document.getElementById('codeVerifyElement')?.classList.add('hidden');
+        document.getElementById('codeRequestElement')?.classList.remove('hidden');
+        const d = document.getElementById('codeDigits'); if (d) d.value = '';
+    },
+
+    /**
+     * Redeem a magic link on arrival.
+     *
+     * The emailed link is this page plus ?login=<token>, so landing on it should sign you in
+     * with no interaction. The token is stripped from the URL immediately afterwards: it is
+     * single-use server-side, but leaving it in the address bar puts it in history and in any
+     * screenshot of the tab.
+     */
+    async tryMagicLink() {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('login');
+        if (!token) return false;
+        history.replaceState({}, '', window.location.pathname);
+        try {
+            const res = await SheetsAPI.request('redeemMagicLink', { linkToken: token });
+            if (res && res.success && res.token) {
+                this.persistSession(res);
+                return true;
+            }
+            this.showToast((res && res.error) || 'That sign-in link is no longer valid.', 'error');
+        } catch (err) {
+            this.showToast('Could not reach the server.', 'error');
+        }
+        return false;
+    },
+
+    /**
+     * Store a session and go. Shared by both passwordless routes so there is one definition
+     * of what "signed in" means, rather than three that can drift.
+     */
+    persistSession(res) {
+        localStorage.setItem('financeflow_token', res.token);
+        localStorage.setItem('financeflow_user', JSON.stringify(res.user || {}));
+        this.showToast('Signed in.', 'success');
+        window.location.href = './index.html';
+    },
+
 
     /**
      * Login user
@@ -325,7 +441,7 @@ const Auth = {
  * Show specific form
  */
 function showForm(form) {
-    const forms = ['login', 'forgot', 'reset'];
+    const forms = ['login', 'forgot', 'reset', 'code'];
     forms.forEach(f => {
         const el = document.getElementById(f + 'Form');
         if (el) {
